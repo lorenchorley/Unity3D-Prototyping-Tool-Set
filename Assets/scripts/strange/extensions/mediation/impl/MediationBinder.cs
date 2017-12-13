@@ -1,0 +1,167 @@
+/*
+ * Copyright 2013 ThirdMotion, Inc.
+ *
+ *	Licensed under the Apache License, Version 2.0 (the "License");
+ *	you may not use this file except in compliance with the License.
+ *	You may obtain a copy of the License at
+ *
+ *		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *		Unless required by applicable law or agreed to in writing, software
+ *		distributed under the License is distributed on an "AS IS" BASIS,
+ *		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *		See the License for the specific language governing permissions and
+ *		limitations under the License.
+ */
+
+/**
+ * @class strange.extensions.mediation.impl.MediationBinder
+ * 
+ * Binds Views to Mediators.
+ * 
+ * Please read strange.extensions.mediation.api.IMediationBinder
+ * where I've extensively explained the purpose of View mediation
+ */
+
+using System;
+using System.Collections;
+using UnityEngine;
+using strange.extensions.injector.api;
+using strange.extensions.mediation.api;
+using strange.framework.api;
+using strange.framework.impl;
+
+namespace strange.extensions.mediation.impl {
+    public class MediationBinder : Binder, IMediationBinder {
+
+        [Inject]
+        public IInjectionBinder injectionBinder { get; set; }
+
+        public MediationBinder() {
+        }
+
+        public override IBinding GetRawBinding() {
+            return new MediationBinding(resolver) as IBinding;
+        }
+
+        public void Trigger(MediationEvent evt, IView view) {
+            Type viewType = view.GetType();
+            IMediationBinding binding = GetBinding(viewType) as IMediationBinding;
+            if (binding != null) {
+                switch (evt) {
+                case MediationEvent.AWAKE:
+                    injectViewAndChildren(view); //Inject and Map all children and itself
+                    mapView(view, binding);
+                    break;
+                case MediationEvent.DESTROYED:
+                    unmapView(view, binding);
+                    break;
+                default:
+                    break;
+                }
+            } else if (evt == MediationEvent.AWAKE) {
+                //Even if not mapped, Views (and their children) have potential to be injected
+                injectViewAndChildren(view);
+            }
+        }
+
+        /// Initialize all IViews within this view
+        virtual protected void injectViewAndChildren(IView view) {
+            MonoBehaviour mono = view as MonoBehaviour;
+            Component[] views = mono.GetComponentsInChildren(typeof(IView), true) as Component[];
+
+            int aa = views.Length;
+            for (int a = 0; a < aa; a++) {
+                IView iView = views[a] as IView;
+                if (iView != null) {
+                    if (iView.registeredWithContext) {
+                        continue;
+                    }
+                    //IMediationBinding binding = GetBinding(iView.GetType()) as IMediationBinding;
+                    //if (binding != null)
+                    //    mapView(iView, binding);
+                    iView.registeredWithContext = true;
+                    if (iView.Equals(mono) == false)
+                        Trigger(MediationEvent.AWAKE, iView);
+                }
+            }
+            injectionBinder.injector.Inject(mono, false);
+        }
+        
+        /// Creates and registers one or more Mediators for a specific View instance.
+        /// Takes a specific View instance and a binding and, if a binding is found for that type, creates and registers a Mediator.
+        virtual protected void mapView(IView view, IMediationBinding binding) {
+            Type viewType = view.GetType();
+
+            if (bindings.ContainsKey(viewType)) {
+                object[] values = binding.value as object[];
+                int aa = values.Length;
+                for (int a = 0; a < aa; a++) {
+                    MonoBehaviour mono = view as MonoBehaviour;
+                    Type mediatorType = values[a] as Type;
+                    if (mediatorType == viewType) {
+                        throw new MediationException(viewType + "mapped to itself. The result would be a stack overflow.", MediationExceptionType.MEDIATOR_VIEW_STACK_OVERFLOW);
+                    }
+                    MonoBehaviour mediator = mono.gameObject.AddComponent(mediatorType) as MonoBehaviour;
+                    if (mediator is IMediator)
+                        ((IMediator) mediator).PreRegister();
+                    injectionBinder.Bind(viewType).ToValue(view).ToInject(false);
+                    injectionBinder.injector.Inject(mediator);
+                    injectionBinder.Unbind(viewType);
+                    if (mediator is IMediator)
+                        ((IMediator) mediator).OnRegister();
+                }
+            }
+        }
+
+        /// Removes a mediator when its view is destroyed
+        virtual protected void unmapView(IView view, IMediationBinding binding) {
+            Type viewType = view.GetType();
+
+            if (bindings.ContainsKey(viewType)) {
+                object[] values = binding.value as object[];
+                int aa = values.Length;
+                for (int a = 0; a < aa; a++) {
+                    Type mediatorType = values[a] as Type;
+                    MonoBehaviour mono = view as MonoBehaviour;
+                    IMediator mediator = mono.GetComponent(mediatorType) as IMediator;
+                    if (mediator != null) {
+                        mediator.OnRemove();
+                    }
+                }
+            }
+        }
+
+        private void enableView(IView view) {
+        }
+
+        private void disableView(IView view) {
+        }
+
+        new public virtual IMediationBinding Rebind<T>() {
+            return GetBinding<T>() as IMediationBinding ?? Bind<T>();
+        }
+
+        new public virtual IMediationBinding Rebind(object key) {
+            return GetBinding(key) as IMediationBinding ?? Bind(key);
+        }
+
+        new public IMediationBinding Bind<T>() {
+            return base.Bind<T>() as IMediationBinding;
+        }
+
+        new public IMediationBinding Bind(object key) {
+            return base.Bind(key) as IMediationBinding;
+        }
+
+        public IMediationBinding BindView<T>() {
+            return base.Bind<T>() as IMediationBinding;
+        }
+
+        public IMediationBinding BindView(object key) {
+            return base.Bind(key) as IMediationBinding;
+        }
+
+    }
+}
+

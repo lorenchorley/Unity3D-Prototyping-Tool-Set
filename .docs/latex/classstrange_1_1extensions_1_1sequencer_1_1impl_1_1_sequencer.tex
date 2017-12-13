@@ -1,0 +1,67 @@
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer}{\section{strange.\-extensions.\-sequencer.\-impl.\-Sequencer Class Reference}
+\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer}\index{strange.\-extensions.\-sequencer.\-impl.\-Sequencer@{strange.\-extensions.\-sequencer.\-impl.\-Sequencer}}
+}
+Inheritance diagram for strange.\-extensions.\-sequencer.\-impl.\-Sequencer\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.800643cm]{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_aca52e58b596ec7ab2e3d6fe7169c8882}{override \hyperlink{interfacestrange_1_1framework_1_1api_1_1_i_binding}{I\-Binding} \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_aca52e58b596ec7ab2e3d6fe7169c8882}{Get\-Raw\-Binding} ()}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_aca52e58b596ec7ab2e3d6fe7169c8882}
+
+\begin{DoxyCompactList}\small\item\em Generate an unpopulated I\-Binding in whatever concrete form the Binder dictates. \end{DoxyCompactList}\item 
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a8aae14bdce3753a0e4b9e890654a6efd}{override void \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a8aae14bdce3753a0e4b9e890654a6efd}{React\-To} (object key, object data)}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a8aae14bdce3753a0e4b9e890654a6efd}
+
+\begin{DoxyCompactList}\small\item\em Trigger a key that unlocks one or more Commands and provide a data injection to that Command. \end{DoxyCompactList}\item 
+void \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a3bd35c4eb952086f159831612b13ce74}{Release\-Command} (\hyperlink{interfacestrange_1_1extensions_1_1sequencer_1_1api_1_1_i_sequence_command}{I\-Sequence\-Command} command)
+\begin{DoxyCompactList}\small\item\em Release a previously retained \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequence_command}{Sequence\-Command}. \end{DoxyCompactList}\item 
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a735c7cd8e72cc5700e298b0899d4d3b6}{new virtual \hyperlink{interfacestrange_1_1extensions_1_1sequencer_1_1api_1_1_i_sequence_binding}{I\-Sequence\-Binding} \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a735c7cd8e72cc5700e298b0899d4d3b6}{Bind$<$ T $>$} ()}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a735c7cd8e72cc5700e298b0899d4d3b6}
+
+\begin{DoxyCompactList}\small\item\em Bind a trigger Key by generic Type. \end{DoxyCompactList}\item 
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a600c15d53b462688c4898f47e5b48ad2}{new virtual \hyperlink{interfacestrange_1_1extensions_1_1sequencer_1_1api_1_1_i_sequence_binding}{I\-Sequence\-Binding} \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a600c15d53b462688c4898f47e5b48ad2}{Bind} (object value)}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a600c15d53b462688c4898f47e5b48ad2}
+
+\begin{DoxyCompactList}\small\item\em Bind a trigger Key by value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a6e1c819a7c2fe3fa12a40452ee622492}{virtual new \hyperlink{interfacestrange_1_1extensions_1_1sequencer_1_1api_1_1_i_sequence_command}{I\-Sequence\-Command} \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a6e1c819a7c2fe3fa12a40452ee622492}{create\-Command} (object cmd, object data)}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a6e1c819a7c2fe3fa12a40452ee622492}
+
+\begin{DoxyCompactList}\small\item\em Instantiate and \hyperlink{class_inject}{Inject} the I\-Sequence\-Command. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a99cc8177a4eee4c38083a6de24daac1b}{new \hyperlink{interfacestrange_1_1extensions_1_1injector_1_1api_1_1_i_injection_binder}{I\-Injection\-Binder} {\bfseries injection\-Binder}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a99cc8177a4eee4c38083a6de24daac1b}
+
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+\subsection{Detailed Description}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\hyperlink{deprecated__deprecated000008}{Deprecated}]\end{DoxyRefDesc}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a3bd35c4eb952086f159831612b13ce74}{\index{strange\-::extensions\-::sequencer\-::impl\-::\-Sequencer@{strange\-::extensions\-::sequencer\-::impl\-::\-Sequencer}!Release\-Command@{Release\-Command}}
+\index{Release\-Command@{Release\-Command}!strange::extensions::sequencer::impl::Sequencer@{strange\-::extensions\-::sequencer\-::impl\-::\-Sequencer}}
+\subsubsection[{Release\-Command}]{\setlength{\rightskip}{0pt plus 5cm}void strange.\-extensions.\-sequencer.\-impl.\-Sequencer.\-Release\-Command (
+\begin{DoxyParamCaption}
+\item[{{\bf I\-Sequence\-Command}}]{command}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequencer_a3bd35c4eb952086f159831612b13ce74}
+
+
+Release a previously retained \hyperlink{classstrange_1_1extensions_1_1sequencer_1_1impl_1_1_sequence_command}{Sequence\-Command}. 
+
+By default, a Command is garbage collected at the end of its {\ttfamily Execute()} method. But the Command can be retained for asynchronous calls. 
+
+Implements \hyperlink{interfacestrange_1_1extensions_1_1sequencer_1_1api_1_1_i_sequencer_a82319428df4be5e5059493c25c0e6aa5}{strange.\-extensions.\-sequencer.\-api.\-I\-Sequencer}.
+
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+Strange\-Io\-C/scripts/strange/extensions/sequencer/impl/Sequencer.\-cs\end{DoxyCompactItemize}
