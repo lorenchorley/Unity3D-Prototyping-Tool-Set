@@ -17,8 +17,6 @@ using UnityEngine.Assertions;
 [CreateAssetMenu(fileName = "DebuggingOptions", menuName = "Context/DebuggingOptions", order = 1)]
 public class ContextDebuggingOptions : ScriptableObject {
 
-    public AnimationCurve c;
-
     [Header("Logging")]
     public bool LogEventDispatches = false;
     public bool LogSignalDispatches = false;
@@ -27,8 +25,8 @@ public class ContextDebuggingOptions : ScriptableObject {
 
     [Header("Naming conventions")]
     public bool IgnoreNamingConventions = false;
-    public List<string> SignalTypes = new List<string>(new string[] { "Returning", "Command", "Event" });
-    public List<string> CommandTypes = new List<string>(new string[] { "Start" });
+    public List<string> SignalNamingConventions = new List<string>(new string[] { "Returning", "Command", "Event" });
+    public List<string> CommandNamingConventions = new List<string>(new string[] { "Start" });
 
 }
 

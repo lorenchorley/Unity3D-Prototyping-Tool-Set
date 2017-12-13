@@ -72,18 +72,18 @@ public class ContextDebugging {
     }
 
     private static string DetermineSignalType(string name) {
-        for (int i = 0; i < Context.DebuggingOptions.SignalTypes.Count; i++) {
-            if (name.EndsWith(Context.DebuggingOptions.SignalTypes[i] + "Signal")) {
-                return Context.DebuggingOptions.SignalTypes[i] + " Signal";
+        for (int i = 0; i < Context.DebuggingOptions.SignalNamingConventions.Count; i++) {
+            if (name.EndsWith(Context.DebuggingOptions.SignalNamingConventions[i] + "Signal")) {
+                return Context.DebuggingOptions.SignalNamingConventions[i] + " Signal";
             }
         }
         return "Signal";
     }
 
     private static string DetermineCommandType(string name) {
-        for (int i = 0; i < Context.DebuggingOptions.CommandTypes.Count; i++) {
-            if (name.EndsWith(Context.DebuggingOptions.CommandTypes[i] + "Command")) {
-                return Context.DebuggingOptions.CommandTypes[i] + " Command";
+        for (int i = 0; i < Context.DebuggingOptions.CommandNamingConventions.Count; i++) {
+            if (name.EndsWith(Context.DebuggingOptions.CommandNamingConventions[i] + "Command")) {
+                return Context.DebuggingOptions.CommandNamingConventions[i] + " Command";
             }
         }
         return "Command";
@@ -117,11 +117,11 @@ public class ContextDebugging {
 
         string last = words[words.Length - 1];
         if (last == "Signal") {
-            if (Context.DebuggingOptions.SignalTypes.Contains(words[words.Length - 2])) {
+            if (Context.DebuggingOptions.SignalNamingConventions.Contains(words[words.Length - 2])) {
                 ignoreAtEnd = 2;
             }
         } else if (last == "Command") {
-            if (Context.DebuggingOptions.CommandTypes.Contains(words[words.Length - 2])) {
+            if (Context.DebuggingOptions.CommandNamingConventions.Contains(words[words.Length - 2])) {
                 ignoreAtEnd = 2;
             }
         } else {

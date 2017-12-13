@@ -1,4 +1,10 @@
 # StrangeIoC-Updated
 
-This project is an update of StrangeIoC by ThirdMotion (https://github.com/strangeioc), a now unmaintained project. I have merged pull requests, and added my own bug fixes for the signal messaging system, as well as several use cases.
+This project is an update of StrangeIoC by ThirdMotion (https://github.com/strangeioc), a now unmaintained project. 
 
+Most pull requests from the original project have been merged, and a number of bug fixes made for the signal messaging system, as well as:
+
+ * Equivalent example projects for signals
+ * Debugging options (Print event/signal dispatch to console, named binders, readout of bindings per binder in inspector)
+ * Added UniRx (Rx for Unity) library for easier concurrency handling
+ * UniRx customisations for events and signals (to be able to use them like any other observable)
