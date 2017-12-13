@@ -14,7 +14,7 @@ public class ContextDebugging {
 
     public static void OnCommandExecute(ICommand c) {
 #if UNITY_EDITOR
-        if (!Context.DebuggingOptions.LogCommandExecutions)
+        if (Context.DebuggingOptions == null || !Context.DebuggingOptions.LogCommandExecutions)
             return;
 
         Type type = c.GetType();
@@ -27,7 +27,7 @@ public class ContextDebugging {
 
     public static void OnSignalDispatch(BaseSignal s, int nonbaseListeners, params object[] parametersToStrings) {
 #if UNITY_EDITOR
-        if (!Context.DebuggingOptions.LogSignalDispatches)
+        if (Context.DebuggingOptions == null || !Context.DebuggingOptions.LogSignalDispatches)
             return;
 
         Type type = s.GetType();
@@ -64,7 +64,7 @@ public class ContextDebugging {
 
     public static void OnNewBinderInstance(IBinder binder) {
 #if UNITY_EDITOR
-        if (!Context.DebuggingOptions.LogBinderCreation)
+        if (Context.DebuggingOptions == null || !Context.DebuggingOptions.LogBinderCreation)
             return;
 
         Debug.Log("New Binder: " + binder.GetBinderName());
@@ -109,7 +109,7 @@ public class ContextDebugging {
     }
 
     private static string FilterEndingsAndJoin(string[] words) {
-        if (Context.DebuggingOptions.IgnoreNamingConventions)
+        if (Context.DebuggingOptions == null || Context.DebuggingOptions.IgnoreNamingConventions)
             return string.Join(" ", words);
 
         Assert.IsTrue(words.Length > 1);
