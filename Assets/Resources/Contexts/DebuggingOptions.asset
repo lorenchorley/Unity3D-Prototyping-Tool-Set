@@ -16,9 +16,9 @@ MonoBehaviour:
   LogCommandExecutions: 0
   LogBinderCreation: 0
   IgnoreNamingConventions: 1
-  SignalTypes:
+  SignalNamingConventions:
   - Returning
   - Command
   - Event
-  CommandTypes:
+  CommandNamingConventions:
   - Start
