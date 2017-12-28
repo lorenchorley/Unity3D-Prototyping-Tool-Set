@@ -22,7 +22,7 @@ namespace eventsourcing.examples.network {
                 if (!PlayerPositionsByUID.TryGetValue(inputEvent.PlayerUID, out pos))
                     throw new Exception("Player moved that was not yet created: " + inputEvent.PlayerUID);
 
-                PlayerPositionsByUID[inputEvent.PlayerUID] = pos + NetworkTester.DirectionToMovement(inputEvent.Direction);
+                PlayerPositionsByUID[inputEvent.PlayerUID] = pos + NetworkGameMaster.DirectionToMovement(inputEvent.Direction);
 
             } else if (e is PlayerCreatedEvent) {
                 PlayerCreatedEvent createdEvent = e as PlayerCreatedEvent;

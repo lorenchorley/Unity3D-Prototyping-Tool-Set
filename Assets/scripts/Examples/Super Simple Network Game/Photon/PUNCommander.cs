@@ -13,46 +13,46 @@ namespace eventsourcing.examples.network {
     // Sends arbirary commands to be executed simultaneously by all players
     public class PUNCommander : Photon.MonoBehaviour {
 
-        private EventSource ES;
+        private EntityManager EM;
         private PhotonView View;
-        private Action<int, bool> ReturnCommandSent;
+        private Action<int, bool> ReturnModSent;
         private PhotonRequest<bool> DependentRequest, IndependentRequest;
 
         void Start() {
-            ES = GetComponent<EventSource>();
+            EM = GetComponent<EntityManager>();
             View = GetComponent<PhotonView>();
             DependentRequest = new AllPlayersPhotonRequest<bool>() {
                 View = View,
-                RPCName = "DoEntityDependentCommand",
+                RPCName = "DoEntityDependentMod",
                 DetermineHasReturned = x => x
             };
             IndependentRequest = new AllPlayersPhotonRequest<bool>() {
                 View = View,
-                RPCName = "DoIndependentCommand",
+                RPCName = "DoIndependentMod",
                 DetermineHasReturned = x => x
             };
         }
 
-        public void SendCommand(IEntity e, IModifier c, Action finished) {
-            _SendCommand(e, c, finished); // TODO Add queueing or something, add command ID so parallel commands can be processed
+        public void SendMod(IEntity e, IModifier m, Action finished) {
+            _SendMod(e, m, finished); // TODO Add queueing or something, add mod ID so parallel mods can be processed
         }
 
-        public void SendCommand(IndependentModifier c, Action finished) {
-            _SendCommand(c, finished);
+        public void SendMod(IModifier m, Action finished) {
+            _SendMod(m, finished);
         }
 
-        private void _SendCommand(IEntity e, IModifier c, Action finished) {
-            if (ReturnCommandSent != null)
+        private void _SendMod(IEntity e, IModifier c, Action finished) {
+            if (ReturnModSent != null)
                 throw new Exception("Already attempting to compare game hashes");
 
-            Debug.Log("Send Entity Command");
+            Debug.Log("Send Entity Mod");
 
             PhotonHelper.RequestFromPlayers(
                 DependentRequest,
-                ref ReturnCommandSent,
+                ref ReturnModSent,
                 _ => {
-                    Debug.Log("Command sent to all players, can now do the command locally");
-                    ReturnCommandSent = null;
+                    Debug.Log("Mod sent to all players, can now do the mod locally");
+                    ReturnModSent = null;
                     finished.Invoke();
                 }, 
                 e, c
@@ -60,39 +60,39 @@ namespace eventsourcing.examples.network {
 
         }
 
-        private void _SendCommand(IndependentModifier c, Action finished) {
-            if (ReturnCommandSent != null)
+        private void _SendMod(IModifier m, Action finished) {
+            if (ReturnModSent != null)
                 throw new Exception("Already attempting to compare game hashes");
 
-            Debug.Log("Send Independent Command");
+            Debug.Log("Send Independent Mod");
 
             PhotonHelper.RequestFromPlayers(
                 IndependentRequest,
-                ref ReturnCommandSent,
+                ref ReturnModSent,
                 _ => {
-                    Debug.Log("Command sent to all players, can now do the command locally");
-                    ReturnCommandSent = null;
+                    Debug.Log("Mod sent to all players, can now do the mod locally");
+                    ReturnModSent = null;
                     finished.Invoke();
                 },
-                c
+                m
             );
         }
 
         [PunRPC]
-        private void DoEntityDependentCommand<E, C>(int sourcePlayerID, E e, C c) where C : IModifier where E : IEntity, IModifiable<C> {
-            ES.Command(e, c);
-            View.RPC("ConfirmCommandExecuted", PhotonNetwork.playerList[sourcePlayerID - 1], PhotonNetwork.player.ID);
+        private void DoEntityDependentMod<E, M>(int sourcePlayerID, E e, M m) where M : IModifier where E : IEntity, IModifiable<M> {
+            EM.Mod(e, m);
+            View.RPC("ConfirmModExecuted", PhotonNetwork.playerList[sourcePlayerID - 1], PhotonNetwork.player.ID);
         }
 
         [PunRPC]
-        private void DoIndependentCommand<E, C>(int sourcePlayerID, C c) where C : IndependentModifier {
-            ES.Command(c);
-            View.RPC("ConfirmCommandExecuted", PhotonNetwork.playerList[sourcePlayerID - 1], PhotonNetwork.player.ID);
+        private void DoIndependentMod<E, M>(int sourcePlayerID, M m) where M : IModifier {
+            EM.Mod(m);
+            View.RPC("ConfirmModExecuted", PhotonNetwork.playerList[sourcePlayerID - 1], PhotonNetwork.player.ID);
         }
 
         [PunRPC]
-        private void ConfirmCommandExecuted(int sourcePlayerID) {
-            ReturnCommandSent(sourcePlayerID - 1, true); // TODO Need a command ID to be returned
+        private void ConfirmModExecuted(int sourcePlayerID) {
+            ReturnModSent(sourcePlayerID - 1, true); // TODO Need a mod ID to be returned
         }
 
     }

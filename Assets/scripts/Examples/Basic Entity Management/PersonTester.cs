@@ -3,41 +3,42 @@ using System.Collections;
 
 namespace eventsourcing.examples.basic {
 
-    [RequireComponent(typeof(EventSource))]
     public class PersonTester : MonoBehaviour {
 
         private EventSource ES;
+        private EntityManager EM;
 
         void Start() {
-            ES = GetComponent<EventSource>();
-            PersonRegistry r = new PersonRegistry(ES);
+            ES = GetComponent<EventSource>() ?? gameObject.AddComponent<EventSource>();
+            EM = GetComponent<EntityManager>() ?? gameObject.AddComponent<EntityManager>();
+            PersonRegistry r = new PersonRegistry(EM, 10);
 
             int personUID = r.NewEntity().UID;
             PersonEntity p = r.GetEntityByUID(personUID);
 
             PersonAgeQuery q = new PersonAgeQuery();
-            ES.Query(p, q);
+            EM.Query(p, q);
             Debug.Log("Age: " + q.Age);
 
-            ChangePersonAgeCommand c = new ChangePersonAgeCommand { NewAge = 20 };
-            ES.Command(personUID, r, c);
+            ChangePersonAgeMod c = new ChangePersonAgeMod { NewAge = 20 };
+            EM.Mod(personUID, r, c);
 
             q = new PersonAgeQuery();
-            ES.Query(personUID, r, q);
+            EM.Query(personUID, r, q);
             Debug.Log("Age: " + q.Age);
 
-            c = new ChangePersonAgeCommand { NewAge = 21 };
-            ES.Command(p, c);
+            c = new ChangePersonAgeMod { NewAge = 21 };
+            EM.Mod(p, c);
 
             q = new PersonAgeQuery();
-            ES.Query(p, q);
+            EM.Query(p, q);
             Debug.Log("Age: " + q.Age);
 
             IProjection proj = new PersonProjection(Colors.cyan);
             ES.ApplyProjection(proj);
 
-            c = new ChangePersonAgeCommand { NewAge = 22 };
-            ES.Command(p, c);
+            c = new ChangePersonAgeMod { NewAge = 22 };
+            EM.Mod(p, c);
 
             proj = new PersonProjection(Colors.blue);
             ES.ApplyProjection(proj);

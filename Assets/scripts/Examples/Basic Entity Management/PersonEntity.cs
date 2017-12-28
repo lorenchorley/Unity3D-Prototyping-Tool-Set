@@ -3,36 +3,28 @@ using System;
 
 namespace eventsourcing.examples.basic {
 
-    public class PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeCommand> {
+    public class PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeMod> {
 
         private int uid;
         public int UID { get { return uid; } }
-
-        protected EventSource es;
-        public EventSource ES {
-            get {
-                return es;
-            }
-        }
-
+        
         public int Index { get; set; }
 
         private int age;
 
-        public PersonEntity(EventSource es, int uid) {
-            this.es = es;
+        public PersonEntity(int uid) {
             this.uid = uid;
             age = 0;
         }
         
-        public IEvent ESUSEONLYMODIFY(ChangePersonAgeCommand c) {
+        public IEvent ApplyMod(ChangePersonAgeMod m) {
             // Record old value
             PersonAgeChangedEvent e = new PersonAgeChangedEvent {
                 OldAge = age
             };
 
             // Apply command
-            age = c.NewAge;
+            age = m.NewAge;
 
             // Record new value
             e.NewAge = age;
@@ -40,7 +32,7 @@ namespace eventsourcing.examples.basic {
             return e;
         }
         
-        public void ESUSEONLYQUERY(PersonAgeQuery q) {
+        public void Query(PersonAgeQuery q) {
             q.Age = age;
         }
     }

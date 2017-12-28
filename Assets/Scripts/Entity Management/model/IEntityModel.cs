@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 namespace eventsourcing {
 
-    public interface IQueriable<Q> where Q : IQuery {
-        void Query(Q q);
+    public interface IEntityModel {
     }
 
 }

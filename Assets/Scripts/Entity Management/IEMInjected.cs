@@ -4,8 +4,10 @@ using System;
 
 namespace eventsourcing {
 
-    public class EntityRegistries : IEntityRegistries {
-        
+    public interface IEMInjected {
+
+        EntityManager EM { set; }
+
     }
 
 }

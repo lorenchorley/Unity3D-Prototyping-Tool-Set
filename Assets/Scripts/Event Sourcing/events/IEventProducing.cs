@@ -6,9 +6,10 @@ using eventsourcing.examples.network;
 
 namespace eventsourcing {
 
-    public interface IEventCreator {
-
+    public interface IEventProducing {
+        
         IEvent Event { get; }
+        bool RecordEvent { get; set; }
 
     }
 

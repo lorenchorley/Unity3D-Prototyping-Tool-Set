@@ -3,30 +3,22 @@ using System;
 
 namespace eventsourcing.examples.network {
 
-    public class PlayerEntity : IEntity, IQueriable<PlayerPositionQuery>, IModifiable<DoPlayerInputCommand> {
+    public class PlayerEntity : IEntity, IQueriable<PlayerPositionQuery>, IModifiable<DoPlayerInputMod> {
 
         private int uid;
         public int UID { get { return uid; } }
-
-        protected EventSource es;
-        public EventSource ES {
-            get {
-                return es;
-            }
-        }
-
+        
         public int Index { get; set; }
-        public PlayerComponent PlayerComponent;
 
+        public PlayerComponent PlayerComponent;
         private Vector2 position;
 
-        public PlayerEntity(EventSource es, int uid) {
-            this.es = es;
+        public PlayerEntity(int uid) {
             this.uid = uid;
             position = Vector2.zero;
         }
 
-        public IEvent ESUSEONLYMODIFY(DoPlayerInputCommand c) {
+        public IEvent ApplyMod(DoPlayerInputMod c) {
             // Record old value
             PlayerInputEvent e = new PlayerInputEvent {
                 Direction = c.direction,
@@ -35,7 +27,7 @@ namespace eventsourcing.examples.network {
             };
 
             // Apply command
-            position += NetworkTester.DirectionToMovement(c.direction);
+            position += NetworkGameMaster.DirectionToMovement(c.direction);
             position = new Vector2(Mathf.Clamp(position.x, -1, 1), Mathf.Clamp(position.y, -1, 1));
 
             // Record new value
@@ -44,15 +36,15 @@ namespace eventsourcing.examples.network {
             return e;
         }
 
-        public static IEvent ESUSEONLYCOMMAND(EventSource ES, CreateLocalPlayerCommand c) {
-            NetworkTester NetworkTester = GameObject.FindObjectOfType<NetworkTester>();
+        public static IEvent ApplyMod(EntityManager EM, CreateLocalPlayerMod c) {
+            NetworkGameMaster NetworkTester = GameObject.FindObjectOfType<NetworkGameMaster>();
             if (NetworkTester.CurrentPlayer != null)
                 throw new Exception("Current player is already set");
 
             PlayerCreatedEvent e = new PlayerCreatedEvent();
 
             // Apply command
-            NetworkTester.CurrentPlayer = ES.GetRegistry<PlayerRegistry>().NewEntity();
+            NetworkTester.CurrentPlayer = EM.GetRegistry<PlayerRegistry>().NewEntity();
             NetworkTester.CurrentPlayer.PlayerComponent = GameObject.Instantiate(NetworkTester.PlayerTemplate.gameObject).GetComponent<PlayerComponent>();
             NetworkTester.CurrentPlayer.PlayerComponent.UID = NetworkTester.CurrentPlayer.UID;
 
@@ -61,7 +53,19 @@ namespace eventsourcing.examples.network {
             return e;
         }
 
-        public void ESUSEONLYQUERY(PlayerPositionQuery q) {
+        public static IEvent ApplyMod(EntityManager EM, DisablePlayerMod c) {
+            PlayerLeftEvent e = new PlayerLeftEvent();
+
+            // Apply command
+            PlayerEntity player = EM.GetRegistry<PlayerRegistry>().NewEntity();
+            GameObject.Destroy(player.PlayerComponent);
+
+            e.PlayerUID = player.uid;
+
+            return e;
+        }
+
+        public void Query(PlayerPositionQuery q) {
             q.Position = position;
         }
 

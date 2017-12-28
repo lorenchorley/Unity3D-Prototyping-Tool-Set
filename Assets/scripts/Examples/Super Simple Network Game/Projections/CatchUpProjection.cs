@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 
 namespace eventsourcing.examples.network {
@@ -15,9 +15,9 @@ namespace eventsourcing.examples.network {
         
         public bool Process(IEvent e) {
             if (e is PlayerInputEvent) {
-
+                throw new NotImplementedException();
             } else if (e is PlayerCreatedEvent) {
-
+                throw new NotImplementedException();
             }
             return true;
         }

@@ -8,7 +8,7 @@ using ZeroFormatter;
 
 namespace eventsourcing.examples.network {
 
-    public class NetworkTester : MonoBehaviour {
+    public class NetworkGameMaster : MonoBehaviour {
 
         public static float movementIncrement = 0.1f;
 
@@ -58,6 +58,9 @@ namespace eventsourcing.examples.network {
 
         [Header("Event Source")]
         public EventSource ES;
+
+        [Header("Entity Management")]
+        public EntityManager EM;
         public PlayerRegistry PlayerRegister;
 
         [Header("Photon")]
@@ -74,12 +77,11 @@ namespace eventsourcing.examples.network {
 
         void Start() {
             isPlaying = false;
-
-            ZeroFormatterInitializer.Register();
-
+            
             View = GetComponent<PhotonView>() ?? gameObject.AddComponent<PhotonView>();
             ES = GetComponent<EventSource>() ?? gameObject.AddComponent<EventSource>();
-            PlayerRegister = new PlayerRegistry(ES, 5);
+            EM = GetComponent<EntityManager>() ?? gameObject.AddComponent<EntityManager>();
+            PlayerRegister = new PlayerRegistry(EM, 5);
 
             PUNManager = GetComponent<PUNManager>() ?? gameObject.AddComponent<PUNManager>();
             PUNCommander = GetComponent<PUNCommander>() ?? gameObject.AddComponent<PUNCommander>();
@@ -89,7 +91,7 @@ namespace eventsourcing.examples.network {
             
             PUNManager.StartPhoton(() => {
                 if (PhotonNetwork.otherPlayers.Length == 0) { 
-                    ES.Command(new CreateLocalPlayerCommand());
+                    EM.Mod(new CreateLocalPlayerMod());
                     isPlaying = true;
                 } else
                     SynchroniseWithOtherPlayers();
@@ -148,11 +150,11 @@ namespace eventsourcing.examples.network {
         }
 
         public void CreateLocalPlayer() {
-            ES.Command(new CreateLocalPlayerCommand());
+            EM.Mod(new CreateLocalPlayerMod());
         }
         
         public void DoInput(Direction direction) {
-            ES.Command(CurrentPlayer, new DoPlayerInputCommand() { direction = direction });
+            EM.Mod(CurrentPlayer, new DoPlayerInputMod() { direction = direction });
         }
 
     }

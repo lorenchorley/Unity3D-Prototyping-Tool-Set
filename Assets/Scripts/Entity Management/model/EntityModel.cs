@@ -4,7 +4,8 @@ using System;
 
 namespace eventsourcing {
 
-    public interface IEntityRegistries {
+    public class EntityModel : IEntityModel {
+        
     }
 
 }

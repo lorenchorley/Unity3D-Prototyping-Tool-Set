@@ -11,17 +11,17 @@ namespace eventsourcing.examples.basic {
         private List<int> uids;
         private List<PersonEntity> entities;
         private Dictionary<int, int> entityIndexByUID;
-        private EventSource ES;
 
         public IList<PersonEntity> Entities => entities;
         public IList<int> UIDs => uids;
 
-        public PersonRegistry(EventSource ES) {
-            this.ES = ES;
-            ES.RegisterRegistry(this);
+        public PersonRegistry(EntityManager EM, int averageCount) {
+            EM.Register(this);
+
             entityIndexByUID = new Dictionary<int, int>();
-            uids = new List<int>(500);
-            entities = new List<PersonEntity>(500);
+            uids = new List<int>(averageCount);
+            entities = new List<PersonEntity>(averageCount);
+
         }
 
         public int EntityCount {
@@ -46,7 +46,7 @@ namespace eventsourcing.examples.basic {
 
         public PersonEntity NewEntity() {
             int uid = newUID++;
-            PersonEntity e = new PersonEntity(ES, uid);
+            PersonEntity e = new PersonEntity(uid);
 
             entityIndexByUID[uid] = entities.Count;
             uids.Add(uid);

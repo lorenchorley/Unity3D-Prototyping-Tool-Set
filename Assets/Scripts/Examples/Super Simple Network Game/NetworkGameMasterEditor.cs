@@ -7,40 +7,40 @@ using UnityEditor;
 
 namespace eventsourcing.examples.network {
 
-    [CustomEditor(typeof(NetworkTester))]
-    public class NetworkTesterEditor : Editor {
+    [CustomEditor(typeof(NetworkGameMaster))]
+    public class NetworkGameMasterEditor : Editor {
 
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 
             if (Application.isPlaying && GUILayout.Button("Check final positions")) {
-                NetworkTester PlayerTester = (NetworkTester) target;
+                NetworkGameMaster PlayerTester = (NetworkGameMaster) target;
                 PrintEventQueue(PlayerTester);
             }
 
             if (Application.isPlaying && GUILayout.Button("Print hashcode")) {
-                NetworkTester PlayerTester = (NetworkTester) target;
+                NetworkGameMaster PlayerTester = (NetworkGameMaster) target;
                 PrintHash(PlayerTester);
             }
 
         }
         
-        private void PrintEventQueue(NetworkTester p) {
+        private void PrintEventQueue(NetworkGameMaster p) {
             PositionCheckProjection proj = new PositionCheckProjection();
-            PlayerRegistry PlayerRegistry = p.ES.GetRegistry<PlayerRegistry>();
+            PlayerRegistry PlayerRegistry = p.EM.GetRegistry<PlayerRegistry>();
             proj.PlayerCount = PlayerRegistry.EntityCount;
             p.ES.ApplyProjection(proj);
 
             PlayerPositionQuery q = new PlayerPositionQuery();
 
             foreach (PlayerEntity player in PlayerRegistry.Entities) { 
-                p.ES.Query(player, q);
+                p.EM.Query(player, q);
                 Debug.Log("Player " + player.UID + " position: real " + q.Position + " projected " + proj.PlayerPositionsByUID[player.UID]);
             }
 
         }
 
-        private void PrintHash(NetworkTester p) {
+        private void PrintHash(NetworkGameMaster p) {
             HashProjection proj = new HashProjection(p.ES);
             p.ES.ApplyProjection(proj);
 

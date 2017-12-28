@@ -7,15 +7,15 @@ namespace eventsourcing.examples.network {
 
         public int UID;
 
-        public EventSource ES;
+        public EntityManager EM;
 
         void Start() {
-            ES = GameObject.FindObjectOfType<EventSource>();
+            EM = GameObject.FindObjectOfType<EntityManager>();
         }
         
         public void RefreshPosition() {
             PlayerPositionQuery q = new PlayerPositionQuery();
-            ES.Query<PlayerEntity, PlayerPositionQuery>(UID, q);
+            EM.Query<PlayerEntity, PlayerPositionQuery>(UID, q);
             transform.position = q.Position;
         }
 

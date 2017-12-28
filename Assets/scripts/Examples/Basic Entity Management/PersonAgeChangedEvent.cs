@@ -14,11 +14,15 @@ namespace eventsourcing.examples.basic {
         }
 
         public IBaseCommand NewDoCommand() {
-            throw new NotImplementedException();
+            return new ChangePersonAgeMod() {
+                NewAge = NewAge
+            };
         }
 
         public IBaseCommand NewUndoCommand() {
-            throw new NotImplementedException();
+            return new ChangePersonAgeMod() {
+                NewAge = OldAge
+            };
         }
 
     }

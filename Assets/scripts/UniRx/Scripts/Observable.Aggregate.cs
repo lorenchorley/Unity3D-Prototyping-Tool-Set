@@ -149,14 +149,14 @@ namespace UniRx {
         /// 
         /// <para>All implementation using Where, Select and FirstOrDefault</para>
         /// </summary>
-        public static IObservable<bool> All<T>(this IObservable<T> source, Func<T, int, bool> predicate) {
+        public static IObservable<bool> All<T>(this IObservable<T> source, Func<T, bool> predicate) {
             return source
-                  .Where((t, i) => !predicate(t, i)) // Only keep the items that don't satisfy the predicate
+                  .Where((t, i) => !predicate(t)) // Only keep the items that don't satisfy the predicate
                   .Select(t => true) // Transform these failing items into trues
                   .FirstOrDefault() // Take the first true that arrives, emit it, and complete. Or if complete arrives before any items, return a default item (false since we're on an IObservable<bool> now)
                   .Select(t => !t); // Invert the value to get the correct result
         }
-
+        
         /// <summary>
         /// <para>Emits false and completes on completion if no items emitted satisfy the predicate, or true and 
         /// completes immediately if the predicate matches on any item</para>
@@ -208,6 +208,7 @@ namespace UniRx {
                     .Select(t => true)
                     .FirstOrDefault()
                     .Select(t => !t);
+            // or .All(_ => false) - less efficient
         }
 
     }

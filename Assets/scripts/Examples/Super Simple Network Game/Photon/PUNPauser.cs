@@ -49,7 +49,7 @@ namespace eventsourcing.examples.network {
         private void PauseGame(int sourcePlayerID) {
             // Finish all current processes
             Debug.Log("Pause Game");
-            FindObjectOfType<NetworkTester>().isPlaying = false;
+            FindObjectOfType<NetworkGameMaster>().isPlaying = false;
             // Local game no longer produces events, but can still accept new events produced by other games as they become paused
 
             View.RPC("PlayerPausedGame", PhotonHelper.GetPlayerByID(sourcePlayerID), PhotonNetwork.player.ID);
@@ -63,7 +63,7 @@ namespace eventsourcing.examples.network {
         [PunRPC]
         private void UnpauseGame(int sourcePlayerID) {
             Debug.Log("Unpause Game");
-            FindObjectOfType<NetworkTester>().isPlaying = true;
+            FindObjectOfType<NetworkGameMaster>().isPlaying = true;
 
             View.RPC("PlayerUnpausedGame", PhotonHelper.GetPlayerByID(sourcePlayerID), PhotonNetwork.player.ID);
         }

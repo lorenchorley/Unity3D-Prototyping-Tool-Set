@@ -4,7 +4,7 @@ using System;
 namespace eventsourcing.examples.basic {
 
     [Serializable]
-    public class ChangePersonAgeCommand : IModifier {
+    public class ChangePersonAgeMod : IModifier {
         public int NewAge;
 
         public void Execute() {

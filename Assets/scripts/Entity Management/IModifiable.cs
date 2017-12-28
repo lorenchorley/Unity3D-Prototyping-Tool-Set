@@ -3,8 +3,8 @@ using System.Collections;
 
 namespace eventsourcing {
 
-    public interface IModifiable<C> where C : IModifier {
-        IEvent ESUSEONLYMODIFY(C c);
+    public interface IModifiable<M> where M : IModifier {
+        IEvent ApplyMod(M m);
     }
 
 }

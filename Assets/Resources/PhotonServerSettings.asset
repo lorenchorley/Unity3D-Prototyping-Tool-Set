@@ -54,4 +54,7 @@ MonoBehaviour:
   - PlayerUnpausedGame
   - DoEntityDependentCommand
   - DoIndependentCommand
+  - ConfirmModExecuted
+  - DoEntityDependentMod
+  - DoIndependentMod
   DisableAutoOpenWizard: 1

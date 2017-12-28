@@ -11,14 +11,13 @@ namespace eventsourcing.examples.network {
         private List<int> uids;
         private List<PlayerEntity> entities;
         private Dictionary<int, int> entityIndexByUID;
-        private EventSource ES;
 
         public IList<PlayerEntity> Entities => entities;
         public IList<int> UIDs => uids;
 
-        public PlayerRegistry(EventSource ES, int averageQuantity) {
-            this.ES = ES;
-            ES.RegisterRegistry(this);
+        public PlayerRegistry(EntityManager EM, int averageQuantity) {
+            EM.Register(this);
+
             entityIndexByUID = new Dictionary<int, int>();
             uids = new List<int>(averageQuantity);
             entities = new List<PlayerEntity>(averageQuantity);
@@ -46,7 +45,7 @@ namespace eventsourcing.examples.network {
 
         public PlayerEntity NewEntity() {
             int uid = newUID++;
-            PlayerEntity e = new PlayerEntity(ES, uid);
+            PlayerEntity e = new PlayerEntity(uid);
 
             entityIndexByUID[uid] = entities.Count;
             uids.Add(uid);

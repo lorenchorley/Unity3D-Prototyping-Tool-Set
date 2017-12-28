@@ -12,6 +12,7 @@ namespace eventsourcing.examples.basic {
         }
 
         public void Reset() {
+            // Nothing to do
         }
 
         public bool Process(IEvent e) {
@@ -20,8 +21,9 @@ namespace eventsourcing.examples.basic {
         }
 
         public void OnFinish() {
+            // Nothing to do
         }
-        
+
     }
 
 }
