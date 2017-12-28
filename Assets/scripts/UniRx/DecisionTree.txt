@@ -62,7 +62,7 @@ I want to reemit only certain items from an Observable
 	...that is, only the first item: First
 	...that is, only the first items: Take
 	...that is, only the last item: Last
-	...that is, only item n: ElementAt (ABSENT)
+	...that is, only item n: ElementAt (Derived from Where, Do and DoOnCompleted)
 	...that is, only those items after the first items
 		...that is, after the first n items: Skip
 		...that is, until one of those items matches a predicate: SkipWhile
@@ -82,13 +82,15 @@ I want to reemit only certain items from an Observable
 I want to reemit items from an Observable only on condition that it was the first of a collection of Observables to emit an item: Amb
 
 I want to evaluate the entire sequence of items emitted by an Observable
-	...and emit a single boolean indicating if all of the items pass some test: All (ABSENT)
-	...and emit a single boolean indicating if the Observable emitted any item (that passes some test): Contains (ABSENT)
-	...and emit a single boolean indicating if the Observable emitted no items: IsEmpty (ABSENT)
+	...and emit a single boolean indicating if all of the items pass some test: All (Derived from Where, Select and FirstOrDefault)
+	...and emit a single boolean indicating if any of the items pass some test: Any (Derived from Where, Select and FirstOrDefault)
+	...and emit a single boolean indicating if the Observable emitted any item (that passes some test): Contains (Derived from Any)
+	...and emit a single boolean indicating if the Observable emitted no items: IsEmpty (Derived from Select and FirstOrDefault)
 	...and emit a single boolean indicating if the sequence is identical to one emitted by a second Observable: SequenceEqual (ABSENT)
-	...and emit the average of all of their valuesAverageand emit the sum of all of their values: Sum (ABSENT)
-	...and emit a number indicating how many items were in the sequence: Count (ABSENT)
-	...and emit the item with the maximum valueMaxand emit the item with the minimum value: Min (ABSENT)
+	...and emit the average of all of their valuesAverageand emit the sum of all of their values: Sum (Derived from Aggregate, http://www.introtorx.com/Content/v1.0.10621.0/07_Aggregation.html#Aggregate)
+	...and emit a number indicating how many items were in the sequence: Count (Derived from Aggregate, http://www.introtorx.com/Content/v1.0.10621.0/07_Aggregation.html#Aggregate)
+	...and emit the item with the maximum value: Max (Derived from Aggregate, http://www.introtorx.com/Content/v1.0.10621.0/07_Aggregation.html#Aggregate)
+	...and emit the item with the minimum value: Min (Derived from Aggregate, http://www.introtorx.com/Content/v1.0.10621.0/07_Aggregation.html#Aggregate)
 	...by applying an aggregation function to each item in turn and emitting the result: Scan
 
 I want to convert the entire sequence of items emitted by an Observable into some other data structure: To

@@ -131,7 +131,6 @@ namespace eventsourcing {
                     disposable.Dispose();
                     disposable = null;
                 })
-                .Merge()
                 .Subscribe(e => {
                     if (!projection.Process(e)) {
                         disposable.Dispose();

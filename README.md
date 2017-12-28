@@ -64,6 +64,7 @@ UniRx
 ## Features
  * Added documentation from http://reactivex.io for supported commands. For use with inline documentation viewing tools like Intellisense in Visual Studio
  * Added decision tree like that on http://reactivex.io/documentation/operators.html updated for UniRx specific command naming
+ * Added implementations for several Rx extensions that UniRx misses
  * UniRx customisations for events and signals (to be able to use them like any other observable)
  * <features Rx>
 ## Docs and references
