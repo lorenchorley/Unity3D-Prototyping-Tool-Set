@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-namespace eventsource {
+namespace eventsourcing {
 
     public class ESModel : IESModel {
 
@@ -11,18 +11,6 @@ namespace eventsource {
         public void InitES() {
             if (ES == null)
                 ES = new EventSource();
-        }
-
-        public void LoadESFrom(byte[] dataSource) {
-
-        }
-
-        public byte[] SerialiseES() {
-            return null;
-        }
-
-        public void SynchroniseESToFile(string path) {
-
         }
 
     }

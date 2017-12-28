@@ -1,9 +1,9 @@
 using UnityEngine;
 using System;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
-    public class PersonEntity : IESEntity, IESQueriable<PersonAgeQuery>, IESCommandable<ChangePersonAgeCommand> {
+    public class PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeCommand> {
 
         private int uid;
         public int UID { get { return uid; } }
@@ -25,7 +25,7 @@ namespace eventsource.examples.basic {
             age = 0;
         }
         
-        public ESEvent ESUSEONLYCOMMAND(ChangePersonAgeCommand c) {
+        public IEvent ESUSEONLYMODIFY(ChangePersonAgeCommand c) {
             // Record old value
             PersonAgeChangedEvent e = new PersonAgeChangedEvent {
                 OldAge = age
@@ -33,7 +33,6 @@ namespace eventsource.examples.basic {
 
             // Apply command
             age = c.NewAge;
-            c.Complete = true;
 
             // Record new value
             e.NewAge = age;

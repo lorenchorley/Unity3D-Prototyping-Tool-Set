@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     public class PlayerComponent : MonoBehaviour {
 

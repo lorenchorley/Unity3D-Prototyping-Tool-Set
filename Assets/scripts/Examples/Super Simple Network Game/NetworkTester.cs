@@ -6,7 +6,7 @@ using System;
 using UnityEngine.Assertions;
 using ZeroFormatter;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     public class NetworkTester : MonoBehaviour {
 
@@ -79,7 +79,7 @@ namespace eventsource.examples.network {
 
             View = GetComponent<PhotonView>() ?? gameObject.AddComponent<PhotonView>();
             ES = GetComponent<EventSource>() ?? gameObject.AddComponent<EventSource>();
-            PlayerRegister = new PlayerRegistry(ES);
+            PlayerRegister = new PlayerRegistry(ES, 5);
 
             PUNManager = GetComponent<PUNManager>() ?? gameObject.AddComponent<PUNManager>();
             PUNCommander = GetComponent<PUNCommander>() ?? gameObject.AddComponent<PUNCommander>();

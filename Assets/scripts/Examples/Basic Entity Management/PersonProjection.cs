@@ -1,11 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
-    public class PersonProjection : IESProjection {
-
-        public const int ChunkSize = 2;
+    public class PersonProjection : IProjection {
 
         public Colors c;
 
@@ -14,15 +12,9 @@ namespace eventsource.examples.basic {
         }
 
         public void Reset() {
-            
         }
 
-        public bool NextRequest(out int length) {
-            length = ChunkSize;
-            return true;
-        }
-
-        public bool Process(ESEvent e) {
+        public bool Process(IEvent e) {
             Debug.Log((e.ToString()).Colored(c));
             return true; // Keep going
         }

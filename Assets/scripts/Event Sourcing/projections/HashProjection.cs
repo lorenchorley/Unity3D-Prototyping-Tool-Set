@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
-    public class HashProjection : IESProjection {
+    public class HashProjection : IProjection {
 
         private int hashcode;
         private EventSource ES;
@@ -16,7 +16,7 @@ namespace eventsource.examples.network {
             hashcode = 0;
         }
         
-        public bool Process(ESEvent e) {
+        public bool Process(IEvent e) {
             hashcode += e.GetHashCode();
             return true;
         }

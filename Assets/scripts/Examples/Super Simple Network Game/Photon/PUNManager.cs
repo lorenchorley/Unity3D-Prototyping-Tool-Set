@@ -5,7 +5,7 @@ using UniRx;
 using System;
 using UnityEngine.Assertions;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     public class PUNManager : Photon.MonoBehaviour {
 

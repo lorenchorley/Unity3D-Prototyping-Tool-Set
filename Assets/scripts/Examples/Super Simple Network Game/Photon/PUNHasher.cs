@@ -5,17 +5,23 @@ using UniRx;
 using System;
 using UnityEngine.Assertions;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     public class PUNHasher : Photon.MonoBehaviour {
 
         private EventSource ES;
         private PhotonView View;
         private Action<int, int?> ReturnHashes;
+        private PhotonRequest<int?> Request;
 
         void Start() {
             ES = GetComponent<EventSource>();
             View = GetComponent<PhotonView>();
+            Request = new AllPlayersPhotonRequest<int?>() {
+                View = View,
+                RPCName = "HashCheck",
+                DetermineHasReturned = x => x.HasValue
+            };
         }
 
         public void RequestHashCheck(Action finished) {
@@ -24,16 +30,15 @@ namespace eventsource.examples.network {
 
             Debug.Log("Request Hash Check");
 
-            PhotonHelper.RequestFromAllPlayers<int?>(
+            PhotonHelper.RequestFromPlayers(
+                Request,
                 ref ReturnHashes,
-                () => View.RPC("HashCheck", PhotonTargets.All, PhotonNetwork.player.ID),
-                b => b.HasValue,
-                a => {
-
+                xs => {
                     HashSet<int> hashes = new HashSet<int>();
-                    for (int i = 0; i < a.Length; i++) {
-                        Assert.IsTrue(a[i].HasValue);
-                        hashes.Add(a[i].Value);
+
+                    for (int i = 0; i < xs.Length; i++) {
+                        Assert.IsTrue(xs[i].HasValue);
+                        hashes.Add(xs[i].Value);
                     }
 
                     if (hashes.Count != 1)
@@ -44,6 +49,7 @@ namespace eventsource.examples.network {
                     finished.Invoke();
                 }
             );
+
         }
 
         [PunRPC]

@@ -1,10 +1,11 @@
 using UnityEngine;
 using System;
+using strange.extensions.command.api;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
     [Serializable]
-    public class PersonAgeChangedEvent : ESEvent {
+    public class PersonAgeChangedEvent : IEvent {
         public int NewAge;
         public int OldAge;
 
@@ -12,11 +13,11 @@ namespace eventsource.examples.basic {
             return (OldAge + NewAge).GetHashCode();
         }
 
-        public override ESCommand NewDoCommand() {
+        public IBaseCommand NewDoCommand() {
             throw new NotImplementedException();
         }
 
-        public override ESCommand NewUndoCommand() {
+        public IBaseCommand NewUndoCommand() {
             throw new NotImplementedException();
         }
 

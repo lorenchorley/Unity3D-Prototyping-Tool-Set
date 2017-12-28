@@ -2,12 +2,12 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace eventsource {
+namespace eventsourcing {
 
-    public interface IESEntityRegistry {
+    public interface IEntityRegistry {
     }
 
-    public interface IESEntityRegistry<E> : IESEntityRegistry where E : IESEntity {
+    public interface IEntityRegistry<E> : IEntityRegistry where E : IEntity {
 
         E GetEntityByUID(int uid);
         void SetEntity(int uid, E e);

@@ -2,12 +2,14 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-namespace eventsource {
+namespace eventsourcing {
 
     [Serializable]
-    public abstract class ESIndependentCommand : ESCommand {
+    public abstract class IndependentModifier : IModifier {
 
-        public abstract ESEvent Execute(EventSource ES);
+        public EventSource ES;
+
+        public abstract void Execute();
 
     }
 

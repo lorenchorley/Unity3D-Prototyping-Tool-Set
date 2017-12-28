@@ -2,29 +2,37 @@
 using UnityEngine;
 using UnityEditor;
 using UniRx;
-using ZeroFormatter;
+using System;
+using static ProductionSerialisationTools;
 
-namespace eventsource {
+namespace eventsourcing {
 
     [CustomEditor(typeof(EventSource))]
     public class EventSourceEditor : Editor {
 
+        IDisposable d = null;
+
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 
-            if (Application.isPlaying && GUILayout.Button("Print events")) {
+            if (Application.isPlaying && d == null && GUILayout.Button("Print events")) {
                 EventSource UnityEventSource = (EventSource) target;
                 PrintEventQueue(UnityEventSource);
+            }
+
+            if (d != null && GUILayout.Button("Stop printing events")) {
+                d.Dispose();
+                d = null;
             }
 
         }
 
         private void PrintEventQueue(EventSource ES) {
-            ES.AllEventObserable
+            d = ES.AllEventObservable
                 .Subscribe(e => {
-                    byte[] bx = ZeroFormatterSerializer.Serialize(e);
-                    Debug.Log(e.ToString() + "\n\n" + bx.Length);
-                 });
+                    string sx = e.SerialiseToJSONString();
+                    Debug.Log(e.ToString() + "\n\n" + sx + "\n\n");
+                });
         }
 
     }

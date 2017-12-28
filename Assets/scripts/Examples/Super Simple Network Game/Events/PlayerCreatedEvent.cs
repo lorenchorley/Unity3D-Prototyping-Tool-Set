@@ -1,14 +1,13 @@
 using UnityEngine;
 using System;
 using ZeroFormatter;
+using strange.extensions.command.api;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     [Serializable]
-    [ZeroFormattable]
-    public class PlayerCreatedEvent : ESEvent {
+    public class PlayerCreatedEvent : IActionableEvent {
 
-        [Index(0)]
         public int PlayerUID;
 
         public override string ToString() {
@@ -19,11 +18,11 @@ namespace eventsource.examples.network {
             return PlayerUID.GetHashCode();
         }
 
-        public override ESCommand NewDoCommand() {
+        public IBaseCommand NewDoCommand() {
             throw new NotImplementedException();
         }
 
-        public override ESCommand NewUndoCommand() {
+        public IBaseCommand NewUndoCommand() {
             throw new NotImplementedException();
         }
 

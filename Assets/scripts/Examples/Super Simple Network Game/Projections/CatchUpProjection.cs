@@ -2,9 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
-    public class CatchUpProjection : IESProjection {
+    public class CatchUpProjection : IProjection {
 
         public List<PlayerComponent> Players;
         public Vector3[] PlayerPositions;
@@ -13,7 +13,7 @@ namespace eventsource.examples.network {
             PlayerPositions = new Vector3[Players.Count];
         }
         
-        public bool Process(ESEvent e) {
+        public bool Process(IEvent e) {
             if (e is PlayerInputEvent) {
 
             } else if (e is PlayerCreatedEvent) {

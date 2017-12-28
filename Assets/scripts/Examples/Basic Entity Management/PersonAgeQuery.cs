@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
-    public class PersonAgeQuery : IESQuery {
+    public class PersonAgeQuery : IQuery {
         public int Age;
     }
 

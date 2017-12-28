@@ -5,15 +5,26 @@ using UniRx;
 using System;
 using UnityEngine.Assertions;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     public class PUNPauser : Photon.MonoBehaviour {
 
         private PhotonView View;
         private Action<int, bool> ReturnGamePaused;
+        private PhotonRequest<bool> PauseRequest, UnpauseRequest;
 
         void Start() {
             View = GetComponent<PhotonView>();
+            PauseRequest = new AllPlayersPhotonRequest<bool>() {
+                View = View,
+                RPCName = "PauseGame",
+                DetermineHasReturned = x => x
+            };
+            UnpauseRequest = new AllPlayersPhotonRequest<bool>() {
+                View = View,
+                RPCName = "UnpauseGame",
+                DetermineHasReturned = x => x
+            };
         }
 
         public void SetAllPlayersPaused(bool pause, Action finished) {
@@ -22,16 +33,16 @@ namespace eventsource.examples.network {
 
             Debug.Log(pause ? "Set All Players Paused" : "Set All Players Unpaused");
 
-            PhotonHelper.RequestFromAllPlayers<bool>(
+            PhotonHelper.RequestFromPlayers(
+                pause ? PauseRequest : UnpauseRequest,
                 ref ReturnGamePaused,
-                () => View.RPC(pause ? "PauseGame" : "UnpauseGame", PhotonTargets.All, PhotonNetwork.player.ID),
-                b => b,
-                a => {
+                _ => {
                     Debug.Log(pause ? "All Players Paused" : "All Players Unpaused");
                     ReturnGamePaused = null;
                     finished.Invoke();
                 }
             );
+
         }
 
         [PunRPC]

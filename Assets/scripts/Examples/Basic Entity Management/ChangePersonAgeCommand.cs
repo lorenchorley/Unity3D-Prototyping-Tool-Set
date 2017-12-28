@@ -1,11 +1,16 @@
 using UnityEngine;
 using System;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
     [Serializable]
-    public class ChangePersonAgeCommand : ESCommand {
+    public class ChangePersonAgeCommand : IModifier {
         public int NewAge;
+
+        public void Execute() {
+            throw new NotImplementedException();
+        }
+
     }
 
 }

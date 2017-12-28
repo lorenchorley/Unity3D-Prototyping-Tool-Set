@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsource {
+namespace eventsourcing {
 
-    public interface IESEntity {
+    public interface IEntity {
 
-        EventSource ES { get; }
         int Index { get; set; }
 
     }

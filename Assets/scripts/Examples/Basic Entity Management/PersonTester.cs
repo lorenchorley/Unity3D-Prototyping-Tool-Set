@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
     [RequireComponent(typeof(EventSource))]
     public class PersonTester : MonoBehaviour {
@@ -16,7 +16,7 @@ namespace eventsource.examples.basic {
             PersonEntity p = r.GetEntityByUID(personUID);
 
             PersonAgeQuery q = new PersonAgeQuery();
-            p.Query(q);
+            ES.Query(p, q);
             Debug.Log("Age: " + q.Age);
 
             ChangePersonAgeCommand c = new ChangePersonAgeCommand { NewAge = 20 };
@@ -27,17 +27,17 @@ namespace eventsource.examples.basic {
             Debug.Log("Age: " + q.Age);
 
             c = new ChangePersonAgeCommand { NewAge = 21 };
-            p.Command(c);
+            ES.Command(p, c);
 
             q = new PersonAgeQuery();
             ES.Query(p, q);
             Debug.Log("Age: " + q.Age);
 
-            IESProjection proj = new PersonProjection(Colors.cyan);
+            IProjection proj = new PersonProjection(Colors.cyan);
             ES.ApplyProjection(proj);
 
             c = new ChangePersonAgeCommand { NewAge = 22 };
-            p.Command(c);
+            ES.Command(p, c);
 
             proj = new PersonProjection(Colors.blue);
             ES.ApplyProjection(proj);

@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
-    public class PlayerRegistry : IESEntityRegistry<PlayerEntity> {
+    public class PlayerRegistry : IEntityRegistry<PlayerEntity> {
 
         private int newUID = 0;
         private List<int> uids;
@@ -16,12 +16,12 @@ namespace eventsource.examples.network {
         public IList<PlayerEntity> Entities => entities;
         public IList<int> UIDs => uids;
 
-        public PlayerRegistry(EventSource ES) {
+        public PlayerRegistry(EventSource ES, int averageQuantity) {
             this.ES = ES;
             ES.RegisterRegistry(this);
             entityIndexByUID = new Dictionary<int, int>();
-            uids = new List<int>(5);
-            entities = new List<PlayerEntity>(5);
+            uids = new List<int>(averageQuantity);
+            entities = new List<PlayerEntity>(averageQuantity);
         }
 
         public int EntityCount {

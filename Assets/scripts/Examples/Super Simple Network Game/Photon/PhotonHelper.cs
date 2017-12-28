@@ -1,7 +1,7 @@
 using UniRx;
 using System;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     public static class PhotonHelper {
 
@@ -20,24 +20,11 @@ namespace eventsource.examples.network {
         public static PhotonPlayer SelectRandomPlayer() {
             return PhotonNetwork.playerList[UnityEngine.Random.Range(0, PhotonNetwork.playerList.Length - 1)];
         }
-
-        public static void RequestFromAllPlayers<T>(ref Action<int, T> SetReturnedValue, Action startAction, Func<T, bool> ReturnedCompare, Action<T[]> finishedCallback) {
-            RequestFromPlayers<T>(ref SetReturnedValue, PhotonTargets.All, startAction, ReturnedCompare, finishedCallback);
-        }
-
-        public static void RequestFromOtherPlayers<T>(ref Action<int, T> SetReturnedValue, Action startAction, Func<T, bool> ReturnedCompare, Action<T[]> finishedCallback) {
-            RequestFromPlayers<T>(ref SetReturnedValue, PhotonTargets.Others, startAction, ReturnedCompare, finishedCallback);
-        }
-
-        public static void RequestFromPlayers<T>(ref Action<int, T> SetReturnedValue,
-                                                 PhotonTargets players,
-                                                 Action startAction,
-                                                 Func<T, bool> ReturnedCompare,
-                                                 Action<T[]> finishedCallback) {
-
+        
+        public static void RequestFromPlayers<T>(PhotonRequest<T> request, ref Action<int, T> ValueReturnedCallback, Action<T[]> FinishedCallback, params object[] args) {
             ReactiveProperty<T[]> data = new ReactiveProperty<T[]>();
 
-            switch (players) {
+            switch (request.Players) {
             case PhotonTargets.All:
             case PhotonTargets.AllBuffered:
             case PhotonTargets.AllBufferedViaServer:
@@ -56,7 +43,7 @@ namespace eventsource.examples.network {
             for (int i = 0; i < data.Value.Length; i++)
                 data.Value[i] = default(T);
 
-            SetReturnedValue = (i, v) => {
+            ValueReturnedCallback = (i, v) => {
                 T[] a = data.Value;
                 a[i] = v;
                 data.SetValueAndForceNotify(a);
@@ -68,18 +55,43 @@ namespace eventsource.examples.network {
                     throw new Exception("Already finished");
 
                 for (int i = 0; i < a.Length; i++) {
-                    if (!ReturnedCompare(data.Value[i])) {
+                    if (!request.DetermineHasReturned(data.Value[i])) {
                         return;
                     }
                 }
 
                 finished = true;
-                finishedCallback.Invoke(a);
+                FinishedCallback.Invoke(a);
             }).Subscribe();
 
-            startAction.Invoke();
+            request.View.RPC(request.RPCName, request.Players, PhotonNetwork.player.ID, args);
         }
 
+    }
+
+    public abstract class PhotonRequest<T> {
+        public PhotonView View;
+        public string RPCName;
+        public PhotonTargets Players { get; protected set; }
+        public Func<T, bool> DetermineHasReturned;
+    }
+
+    public class OtherPlayerPhotonRequest<T> : PhotonRequest<T> {
+        public OtherPlayerPhotonRequest() {
+            Players = PhotonTargets.Others;
+        }
+    }
+
+    public class AllPlayersPhotonRequest<T> : PhotonRequest<T> {
+        public AllPlayersPhotonRequest() {
+            Players = PhotonTargets.All;
+        }
+    }
+
+    public class MasterClientPhotonRequest<T> : PhotonRequest<T> {
+        public MasterClientPhotonRequest() {
+            Players = PhotonTargets.MasterClient;
+        }
     }
 
 }

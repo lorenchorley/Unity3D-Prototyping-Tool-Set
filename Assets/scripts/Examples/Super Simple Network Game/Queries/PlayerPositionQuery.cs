@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
-    public class PlayerPositionQuery : IESQuery {
+    public class PlayerPositionQuery : IQuery {
         public Vector2 Position;
     }
 

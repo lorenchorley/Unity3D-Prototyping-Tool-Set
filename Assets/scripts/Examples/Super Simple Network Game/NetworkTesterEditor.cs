@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 using UnityEditor;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     [CustomEditor(typeof(NetworkTester))]
     public class NetworkTesterEditor : Editor {

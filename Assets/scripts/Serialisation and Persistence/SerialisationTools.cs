@@ -1,63 +1,29 @@
-using ExitGames.Client.Photon;
+using eventsourcing.examples.network;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 // Best serialisation for production will be per object serialisation to a minimum of binary data
 // Each new object must have it's own serialise and deserialise methods written specifically for it
-public static class ProductionSerialisationTools {
-    // Better to use byte stream?
-    // Or use photon's system?
+public static class ProductionSerialisationTools { // Replace with zeroformatter
 
     public static readonly short LENGTH_BOOL = 1;
     public static readonly short LENGTH_INT32 = 4;
     public static readonly short LENGTH_FLOAT = 4;
 
-    public class ProductionSerialiser {
+    public class Serialiser {
 
         private List<byte[]> serialisedObjects;
         private int totalLength;
 
-        public ProductionSerialiser() {
+        public Serialiser() {
             serialisedObjects = new List<byte[]>();
             totalLength = 0;
         }
 
-        public void Add(bool b) {
-            byte[] bx = BitConverter.GetBytes(b);
-            Assert.IsTrue(bx.Length == LENGTH_BOOL);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bx);
-            Add(bx);
-        }
-
-        public void Add(Int32 i) {
-            byte[] bx = BitConverter.GetBytes(i);
-            Assert.IsTrue(bx.Length == LENGTH_INT32);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bx);
-            Add(bx);
-        }
-
-        public void Add(float f) {
-            byte[] bx = BitConverter.GetBytes(f);
-            Assert.IsTrue(bx.Length == LENGTH_FLOAT);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bx);
-            Add(bx);
-        }
-
-        public void Add(byte[] serialisedObject) {
-            serialisedObjects.Add(serialisedObject);
-            totalLength += serialisedObject.Length;
-        }
-
-        public byte[] ToByteArray() {
+        public byte[] ExtractByteArray() {
             byte[] bx = new byte[totalLength];
             byte[] t;
             int c = 0;
@@ -73,36 +39,71 @@ public static class ProductionSerialisationTools {
             return bx;
         }
 
+        public void Append(byte[] preserialisedObjectOrData) {
+            serialisedObjects.Add(preserialisedObjectOrData);
+            totalLength += preserialisedObjectOrData.Length;
+        }
+
+        public void Append(bool b) {
+            byte[] bx = BitConverter.GetBytes(b);
+            Assert.IsTrue(bx.Length == LENGTH_BOOL);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bx);
+            Append(bx);
+        }
+
+        public void Append(Int32 i) {
+            byte[] bx = BitConverter.GetBytes(i);
+            Assert.IsTrue(bx.Length == LENGTH_INT32);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bx);
+            Append(bx);
+        }
+
+        public void Append(float f) {
+            byte[] bx = BitConverter.GetBytes(f);
+            Assert.IsTrue(bx.Length == LENGTH_FLOAT);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bx);
+            Append(bx);
+        }
+
+        public void Append(Vector2 v) {
+            Append(v.x);
+            Append(v.y);
+        }
+
+        // Add further serialisation methods like above as needed...
+
     }
 
-    public class ProductionDeserialiser {
+    public static void Append(this Serialiser s, PlayerCreatedEvent e) {
+        s.Append(e.PlayerUID);
+    }
+
+    public static void Append(this Serialiser s, PlayerInputEvent e) {
+        s.Append(e.PlayerUID);
+        s.Append(e.OldPosition);
+        s.Append(e.NewPosition);
+        s.Append((int) e.Direction);
+    }
+
+    public static void Append(this Serialiser s, PlayerLeftEvent e) {
+        s.Append(e.PlayerUID);
+    }
+
+    // Or add further static serialisation extensions methods like above as needed...
+
+    public class Deserialiser {
 
         private byte[] rawData;
         private int pointer;
 
-        public ProductionDeserialiser(byte[] rawData) {
+        public Deserialiser(byte[] rawData) {
             Assert.IsNotNull(rawData);
             Assert.IsTrue(rawData.Length > 0);
             this.rawData = rawData;
             pointer = 0;
-        }
-
-        public bool DeserialiseBool() {
-            bool b = BitConverter.ToBoolean(rawData, pointer);
-            pointer += LENGTH_BOOL;
-            return b;
-        }
-
-        public Int32 DeserialiseInt32() {
-            Int32 i = BitConverter.ToInt32(rawData, pointer);
-            pointer += LENGTH_INT32;
-            return i;
-        }
-
-        public float DeserialiseFloat() {
-            float f = BitConverter.ToSingle(rawData, pointer);
-            pointer += LENGTH_FLOAT;
-            return f;
         }
 
         public byte[] ReadOutData(int length) {
@@ -117,208 +118,170 @@ public static class ProductionSerialisationTools {
             return bx;
         }
 
+        public bool ExtractBool() {
+            bool b = BitConverter.ToBoolean(rawData, pointer);
+            pointer += LENGTH_BOOL;
+            return b;
+        }
+
+        public Int32 ExtractInt32() {
+            Int32 i = BitConverter.ToInt32(rawData, pointer);
+            pointer += LENGTH_INT32;
+            return i;
+        }
+
+        public float ExtractFloat() {
+            float f = BitConverter.ToSingle(rawData, pointer);
+            pointer += LENGTH_FLOAT;
+            return f;
+        }
+
+        public Vector2 ExtractVector2() {
+            float x = ExtractFloat(); // Must be read out in the same order as it is added in the corresponding serialise method
+            float y = ExtractFloat();
+            return new Vector2(x, y);
+        }
+
+        // Add further deserialisation methods like above as needed...
+
     }
 
-    #region Base-type serialisation helper methods
-    public static void SerialiseBool(this bool obj, ProductionSerialiser ps) {
-        ps.Add(obj);
-    }
-    public static void SerialiseInt(this Int32 obj, ProductionSerialiser ps) {
-        ps.Add(obj);
-    }
-    public static void SerialiseFloat(this float obj, ProductionSerialiser ps) {
-        ps.Add(obj);
-    }
-    #endregion
-
-    #region Vector2
-    public static void SerialiseVector2(this Vector2 obj, ProductionSerialiser ps) {
-        ps.Add(obj.x);
-        ps.Add(obj.y);
+    public static PlayerCreatedEvent ExtractPlayerCreatedEvent(this Deserialiser s) {
+        PlayerCreatedEvent e = new PlayerCreatedEvent();
+        e.PlayerUID = s.ExtractInt32();
+        return e;
     }
 
-    public static Vector2 DeserialiseVector2(this ProductionDeserialiser pd) {
-        float x = pd.DeserialiseFloat(); // Must be read out in the same order as it is added in the serialise method
-        float y = pd.DeserialiseFloat();
-        return new Vector2(x, y);
-    }
-    #endregion
-
-    #region Vector3
-    public static void SerialiseVector3(this Vector3 obj, ProductionSerialiser ps) {
-        ps.Add(obj.x);
-        ps.Add(obj.y);
-        ps.Add(obj.z);
+    public static PlayerInputEvent ExtractPlayerInputEvent(this Deserialiser s) {
+        PlayerInputEvent e = new PlayerInputEvent();
+        e.PlayerUID = s.ExtractInt32();
+        e.OldPosition = s.ExtractVector2();
+        e.NewPosition = s.ExtractVector2();
+        e.Direction = (Direction) s.ExtractInt32();
+        return e;
     }
 
-    public static Vector3 DeserialiseVector3(this ProductionDeserialiser pd) {
-        float x = pd.DeserialiseFloat();
-        float y = pd.DeserialiseFloat();
-        float z = pd.DeserialiseFloat();
-        return new Vector3(x, y, z);
-    }
-    #endregion
-
-    #region Quaternion
-    public static void SerialiseQuaternion(this Quaternion obj, ProductionSerialiser ps) {
-        ps.Add(obj.x);
-        ps.Add(obj.y);
-        ps.Add(obj.z);
-        ps.Add(obj.w);
+    public static PlayerLeftEvent ExtractPlayerLeftEvent(this Deserialiser s) {
+        PlayerLeftEvent e = new PlayerLeftEvent();
+        e.PlayerUID = s.ExtractInt32();
+        return e;
     }
 
-    public static Quaternion DeserialiseQuaternion(this ProductionDeserialiser pd) {
-        float x = pd.DeserialiseFloat();
-        float y = pd.DeserialiseFloat();
-        float z = pd.DeserialiseFloat();
-        float w = pd.DeserialiseFloat();
-        return new Quaternion(x, y, z, w);
-    }
-    #endregion
-
-    #region Arbitrary Class Example
-    public class ArbitraryClass {
-        public Vector2 V;
-        public bool B;
-        public float F;
-    }
-
-    public static void SerialiseArbitraryClass(this ArbitraryClass obj, ProductionSerialiser ps) {
-        obj.V.SerialiseVector2(ps);
-        obj.B.SerialiseBool(ps);
-        obj.F.SerialiseFloat(ps);
-    }
-
-    public static ArbitraryClass DeserialiseArbitraryClass(this ProductionDeserialiser pd) {
-        Vector2 v = pd.DeserialiseVector2();
-        bool b = pd.DeserialiseBool();
-        float f = pd.DeserialiseFloat();
-        return new ArbitraryClass() {
-            V = v,
-            B = b,
-            F = f
-        };
-    }
-    #endregion
+    // Or add further static deserialisation extensions methods like above as needed...
 
 }
 
 // Best serialisation for prototyping will be one command fits all
-public static class PrototypingSerialisationTools {
+// Very slow, but in readable format and easy to serialise anything
+public static class DevelopmentSerialisationTools {
 
+    #region JSON
     public static byte[] SerialiseToJSON(this System.Object obj) {
         return Encoding.ASCII.GetBytes(JsonUtility.ToJson(obj));
     }
 
-    public static System.Object DeserialiseFromJSON(this byte[] rawData) {
-        return Encoding.ASCII.GetString(rawData);
+    public static string SerialiseToJSONString(this System.Object obj) {
+        return JsonUtility.ToJson(obj);
     }
 
     public static T DeserialiseFromJSON<T>(this byte[] rawData) {
-        return (T) DeserialiseFromJSON(rawData);
+        return JsonUtility.FromJson<T>(Encoding.ASCII.GetString(rawData));
     }
 
-    public static byte[] SerialiseToXML(this System.Object obj) {
-        throw new NotImplementedException();
+    public static T DeserialiseFromJSONString<T>(this string rawData) {
+        return JsonUtility.FromJson<T>(rawData);
     }
+    #endregion
 
-    public static System.Object DeserialiseFromXML(this byte[] rawData) {
-        throw new NotImplementedException();
-    }
+    //public static byte[] SerialiseToBinary(this System.Object obj) {
+    //    if (obj == null) {
+    //        return null;
+    //    }
 
-    public static T DeserialiseFromXML<T>(this byte[] rawData) {
-        throw new NotImplementedException();
-    }
+    //    using (var memoryStream = new MemoryStream()) {
+    //        var binaryFormatter = new BinaryFormatter();
 
-    public static byte[] SerialiseToBinary(this System.Object obj) {
-        if (obj == null) {
-            return null;
-        }
+    //        binaryFormatter.Serialize(memoryStream, obj);
 
-        using (var memoryStream = new MemoryStream()) {
-            var binaryFormatter = new BinaryFormatter();
+    //        var compressed = CompressBinary(memoryStream.ToArray());
+    //        return compressed;
+    //    }
+    //}
 
-            binaryFormatter.Serialize(memoryStream, obj);
+    //public static System.Object DeserialiseFromBinary(this byte[] rawData) {
+    //    using (MemoryStream memoryStream = new MemoryStream()) {
+    //        BinaryFormatter binaryFormatter = new BinaryFormatter();
+    //        byte[] decompressed = DecompressBinary(rawData);
 
-            var compressed = CompressBinary(memoryStream.ToArray());
-            return compressed;
-        }
-    }
+    //        memoryStream.Write(decompressed, 0, decompressed.Length);
+    //        memoryStream.Seek(0, SeekOrigin.Begin);
 
-    public static System.Object DeserialiseFromBinary(this byte[] rawData) {
-        using (MemoryStream memoryStream = new MemoryStream()) {
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            byte[] decompressed = DecompressBinary(rawData);
+    //        return binaryFormatter.Deserialize(memoryStream);
+    //    }
+    //}
 
-            memoryStream.Write(decompressed, 0, decompressed.Length);
-            memoryStream.Seek(0, SeekOrigin.Begin);
+    //public static T DeserialiseFromBinary<T>(this byte[] rawData) {
+    //    return (T) DeserialiseFromBinary(rawData);
+    //}
 
-            return binaryFormatter.Deserialize(memoryStream);
-        }
-    }
+    //public static byte[] CompressBinary(byte[] input) {
+    //    byte[] compressesData;
 
-    public static T DeserialiseFromBinary<T>(this byte[] rawData) {
-        return (T) DeserialiseFromBinary(rawData);
-    }
+    //    using (var outputStream = new MemoryStream()) {
+    //        using (var zip = new GZipStream(outputStream, CompressionMode.Compress)) {
+    //            zip.Write(input, 0, input.Length);
+    //        }
 
-    public static byte[] CompressBinary(byte[] input) {
-        byte[] compressesData;
+    //        compressesData = outputStream.ToArray();
+    //    }
 
-        using (var outputStream = new MemoryStream()) {
-            using (var zip = new GZipStream(outputStream, CompressionMode.Compress)) {
-                zip.Write(input, 0, input.Length);
-            }
+    //    return compressesData;
+    //}
 
-            compressesData = outputStream.ToArray();
-        }
+    //public static byte[] DecompressBinary(byte[] input) {
+    //    byte[] decompressedData;
 
-        return compressesData;
-    }
+    //    using (var outputStream = new MemoryStream()) {
+    //        using (var inputStream = new MemoryStream(input)) {
+    //            using (var zip = new GZipStream(inputStream, CompressionMode.Decompress)) {
+    //                zip.CopyTo(outputStream);
+    //            }
+    //        }
 
-    public static byte[] DecompressBinary(byte[] input) {
-        byte[] decompressedData;
+    //        decompressedData = outputStream.ToArray();
+    //    }
 
-        using (var outputStream = new MemoryStream()) {
-            using (var inputStream = new MemoryStream(input)) {
-                using (var zip = new GZipStream(inputStream, CompressionMode.Decompress)) {
-                    zip.CopyTo(outputStream);
-                }
-            }
-
-            decompressedData = outputStream.ToArray();
-        }
-
-        return decompressedData;
-    }
+    //    return decompressedData;
+    //}
 
 }
 
-[Serializable]
-public struct Vector2Serialiser {
-    public float x, y;
-    public Vector2Serialiser(float x, float y) { this.x = x; this.y = y; }
-    public Vector2Serialiser(Vector2 v) { x = v.x; y = v.y; }
-    public Vector2 Vector2 { get { return new Vector2(x, y); } }
-    public Vector2Serialiser Add(Vector2Serialiser v) { return new Vector2Serialiser(x + v.x, y + v.y); }
-    public Vector2Serialiser Subtract(Vector2Serialiser v) { return new Vector2Serialiser(x - v.x, y - v.y); }
-    public override string ToString() { return Vector2.ToString(); }
-}
+//[Serializable]
+//public struct Vector2Serialiser {
+//    public float x, y;
+//    public Vector2Serialiser(float x, float y) { this.x = x; this.y = y; }
+//    public Vector2Serialiser(Vector2 v) { x = v.x; y = v.y; }
+//    public Vector2 Vector2 { get { return new Vector2(x, y); } }
+//    public Vector2Serialiser Add(Vector2Serialiser v) { return new Vector2Serialiser(x + v.x, y + v.y); }
+//    public Vector2Serialiser Subtract(Vector2Serialiser v) { return new Vector2Serialiser(x - v.x, y - v.y); }
+//    public override string ToString() { return Vector2.ToString(); }
+//}
 
-[Serializable]
-public struct Vector3Serialiser {
-    public float x, y, z;
-    public Vector3Serialiser(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
-    public Vector3Serialiser(Vector3 v) { x = v.x; y = v.y; z = v.z; }
-    public Vector3 ToVector3 { get { return new Vector3(x, y, z); } }
-    public Vector3Serialiser Add(Vector3Serialiser v) { return new Vector3Serialiser(x + v.x, y + v.y, z + v.z); }
-    public Vector3Serialiser Subtract(Vector3Serialiser v) { return new Vector3Serialiser(x - v.x, y - v.y, z - v.z); }
-    public override string ToString() { return ToVector3.ToString(); }
-}
+//[Serializable]
+//public struct Vector3Serialiser {
+//    public float x, y, z;
+//    public Vector3Serialiser(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
+//    public Vector3Serialiser(Vector3 v) { x = v.x; y = v.y; z = v.z; }
+//    public Vector3 ToVector3 { get { return new Vector3(x, y, z); } }
+//    public Vector3Serialiser Add(Vector3Serialiser v) { return new Vector3Serialiser(x + v.x, y + v.y, z + v.z); }
+//    public Vector3Serialiser Subtract(Vector3Serialiser v) { return new Vector3Serialiser(x - v.x, y - v.y, z - v.z); }
+//    public override string ToString() { return ToVector3.ToString(); }
+//}
 
-[Serializable]
-public struct QuaternionSerialiser {
-    public float x, y, z, w;
-    public QuaternionSerialiser(Quaternion q) { x = q.x; y = q.y; z = q.z; w = q.w; }
-    public Quaternion ToQuaternion { get { return new Quaternion(x, y, z, w); } }
-    public override string ToString() { return ToQuaternion.ToString(); }
-}
+//[Serializable]
+//public struct QuaternionSerialiser {
+//    public float x, y, z, w;
+//    public QuaternionSerialiser(Quaternion q) { x = q.x; y = q.y; z = q.z; w = q.w; }
+//    public Quaternion ToQuaternion { get { return new Quaternion(x, y, z, w); } }
+//    public override string ToString() { return ToQuaternion.ToString(); }
+//}

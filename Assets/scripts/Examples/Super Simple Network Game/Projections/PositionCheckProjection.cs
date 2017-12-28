@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
-    public class PositionCheckProjection : IESProjection {
+    public class PositionCheckProjection : IProjection {
 
         public int PlayerCount;
         public Dictionary<int, Vector2> PlayerPositionsByUID;
@@ -14,7 +14,7 @@ namespace eventsource.examples.network {
             PlayerPositionsByUID = new Dictionary<int, Vector2>();
         }
 
-        public bool Process(ESEvent e) {
+        public bool Process(IEvent e) {
             if (e is PlayerInputEvent) {
                 PlayerInputEvent inputEvent = e as PlayerInputEvent;
                 Vector2 pos;

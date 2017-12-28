@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-namespace eventsource.examples.basic {
+namespace eventsourcing.examples.basic {
 
-    public class PersonRegistry : IESEntityRegistry<PersonEntity> {
+    public class PersonRegistry : IEntityRegistry<PersonEntity> {
 
         private int newUID = 0;
         private List<int> uids;

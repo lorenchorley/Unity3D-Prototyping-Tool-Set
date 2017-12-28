@@ -5,7 +5,7 @@ using UniRx;
 using System;
 using UnityEngine.Assertions;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     // PUNESSynchroniser perhaps
     public class PUNESRequester : Photon.MonoBehaviour {

@@ -1,13 +1,16 @@
 using UnityEngine;
 using System;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     [Serializable]
-    public class CreateLocalPlayerCommand : ESIndependentCommand {
+    public class CreateLocalPlayerCommand : IndependentModifier, IEventCreator {
 
-        public override ESEvent Execute(EventSource ES) {
-            return PlayerEntity.ESUSEONLYCOMMAND(ES, this);
+        private IEvent _Event;
+        public IEvent Event { get { return _Event; } }
+
+        public override void Execute() {
+            _Event = PlayerEntity.ESUSEONLYCOMMAND(ES, this);
         }
 
     }

@@ -1,9 +1,9 @@
 using UnityEngine;
 using System;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
-    public class PlayerEntity : IESEntity, IESQueriable<PlayerPositionQuery>, IESCommandable<DoPlayerInputCommand> {
+    public class PlayerEntity : IEntity, IQueriable<PlayerPositionQuery>, IModifiable<DoPlayerInputCommand> {
 
         private int uid;
         public int UID { get { return uid; } }
@@ -26,7 +26,7 @@ namespace eventsource.examples.network {
             position = Vector2.zero;
         }
 
-        public ESEvent ESUSEONLYCOMMAND(DoPlayerInputCommand c) {
+        public IEvent ESUSEONLYMODIFY(DoPlayerInputCommand c) {
             // Record old value
             PlayerInputEvent e = new PlayerInputEvent {
                 Direction = c.direction,
@@ -37,7 +37,6 @@ namespace eventsource.examples.network {
             // Apply command
             position += NetworkTester.DirectionToMovement(c.direction);
             position = new Vector2(Mathf.Clamp(position.x, -1, 1), Mathf.Clamp(position.y, -1, 1));
-            c.Complete = true;
 
             // Record new value
             e.NewPosition = position;
@@ -45,7 +44,7 @@ namespace eventsource.examples.network {
             return e;
         }
 
-        public static ESEvent ESUSEONLYCOMMAND(EventSource ES, CreateLocalPlayerCommand c) {
+        public static IEvent ESUSEONLYCOMMAND(EventSource ES, CreateLocalPlayerCommand c) {
             NetworkTester NetworkTester = GameObject.FindObjectOfType<NetworkTester>();
             if (NetworkTester.CurrentPlayer != null)
                 throw new Exception("Current player is already set");

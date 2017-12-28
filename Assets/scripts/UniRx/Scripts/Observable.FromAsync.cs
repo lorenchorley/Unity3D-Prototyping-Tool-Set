@@ -2,8 +2,12 @@ using System;
 
 namespace UniRx
 {
-    public static partial class Observable
-    {
+    public static partial class Observable {
+
+        /// <summary>
+        /// <para>Convert from the .NET AsyncPattern to an Rx Observable based solution</para>
+        /// </summary>
+        /// <see cref="http://www.introtorx.com/uat/content/v1.0.10621.0/04_CreatingObservableSequences.html#FromAPM"/>
         public static Func<IObservable<TResult>> FromAsyncPattern<TResult>(Func<AsyncCallback, object, IAsyncResult> begin, Func<IAsyncResult, TResult> end)
         {
             return () =>
@@ -35,6 +39,10 @@ namespace UniRx
             };
         }
 
+        /// <summary>
+        /// <para>Convert from the .NET AsyncPattern to an Rx Observable based solution</para>
+        /// </summary>
+        /// <see cref="http://www.introtorx.com/uat/content/v1.0.10621.0/04_CreatingObservableSequences.html#FromAPM"/>
         public static Func<T1, IObservable<TResult>> FromAsyncPattern<T1, TResult>(Func<T1, AsyncCallback, object, IAsyncResult> begin, Func<IAsyncResult, TResult> end)
         {
             return x =>
@@ -66,6 +74,10 @@ namespace UniRx
             };
         }
 
+        /// <summary>
+        /// <para>Convert from the .NET AsyncPattern to an Rx Observable based solution</para>
+        /// </summary>
+        /// <see cref="http://www.introtorx.com/uat/content/v1.0.10621.0/04_CreatingObservableSequences.html#FromAPM"/>
         public static Func<T1, T2, IObservable<TResult>> FromAsyncPattern<T1, T2, TResult>(Func<T1, T2, AsyncCallback, object, IAsyncResult> begin, Func<IAsyncResult, TResult> end)
         {
             return (x, y) =>
@@ -97,6 +109,10 @@ namespace UniRx
             };
         }
 
+        /// <summary>
+        /// <para>Convert from the .NET AsyncPattern to an Rx Observable based solution</para>
+        /// </summary>
+        /// <see cref="http://www.introtorx.com/uat/content/v1.0.10621.0/04_CreatingObservableSequences.html#FromAPM"/>
         public static Func<IObservable<Unit>> FromAsyncPattern(Func<AsyncCallback, object, IAsyncResult> begin, Action<IAsyncResult> end)
         {
             return FromAsyncPattern(begin, iar =>
@@ -106,6 +122,10 @@ namespace UniRx
             });
         }
 
+        /// <summary>
+        /// <para>Convert from the .NET AsyncPattern to an Rx Observable based solution</para>
+        /// </summary>
+        /// <see cref="http://www.introtorx.com/uat/content/v1.0.10621.0/04_CreatingObservableSequences.html#FromAPM"/>
         public static Func<T1, IObservable<Unit>> FromAsyncPattern<T1>(Func<T1, AsyncCallback, object, IAsyncResult> begin, Action<IAsyncResult> end)
         {
             return FromAsyncPattern(begin, iar =>
@@ -115,6 +135,10 @@ namespace UniRx
             });
         }
 
+        /// <summary>
+        /// <para>Convert from the .NET AsyncPattern to an Rx Observable based solution</para>
+        /// </summary>
+        /// <see cref="http://www.introtorx.com/uat/content/v1.0.10621.0/04_CreatingObservableSequences.html#FromAPM"/>
         public static Func<T1, T2, IObservable<Unit>> FromAsyncPattern<T1, T2>(Func<T1, T2, AsyncCallback, object, IAsyncResult> begin, Action<IAsyncResult> end)
         {
             return FromAsyncPattern(begin, iar =>

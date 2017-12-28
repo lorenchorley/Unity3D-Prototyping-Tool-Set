@@ -1,23 +1,16 @@
 using UnityEngine;
 using System;
 using ZeroFormatter;
+using strange.extensions.command.api;
 
-namespace eventsource.examples.network {
+namespace eventsourcing.examples.network {
 
     [Serializable]
-    [ZeroFormattable]
-    public class PlayerInputEvent : ESEvent {
+    public class PlayerInputEvent : IActionableEvent {
 
-        [Index(0)]
         public Direction Direction;
-
-        [Index(1)]
         public int PlayerUID;
-
-        [Index(2)]
         public Vector2 OldPosition;
-
-        [Index(3)]
         public Vector2 NewPosition;
 
         public override string ToString() {
@@ -28,11 +21,11 @@ namespace eventsource.examples.network {
             return ((OldPosition + NewPosition).GetHashCode() + PlayerUID + ((int) Direction)).GetHashCode();
         }
 
-        public override ESCommand NewDoCommand() {
+        public IBaseCommand NewDoCommand() {
             throw new NotImplementedException();
         }
 
-        public override ESCommand NewUndoCommand() {
+        public IBaseCommand NewUndoCommand() {
             throw new NotImplementedException();
         }
 
