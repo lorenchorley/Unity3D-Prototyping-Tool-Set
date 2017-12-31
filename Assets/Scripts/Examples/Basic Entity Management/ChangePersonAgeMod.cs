@@ -8,7 +8,7 @@ namespace eventsourcing.examples.basic {
         public int NewAge;
 
         public void Execute() {
-            throw new NotImplementedException();
+            // Not used
         }
 
     }

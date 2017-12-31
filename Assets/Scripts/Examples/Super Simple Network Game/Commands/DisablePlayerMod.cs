@@ -12,7 +12,7 @@ namespace eventsourcing.examples.network {
         private EntityManager _EM;
         public EntityManager EM { set { _EM = value; } }
 
-        public bool RecordEvent { get; set; }
+        public bool DontRecordEvent { get; set; }
 
         public void Execute() {
             _Event = PlayerEntity.ApplyMod(_EM, this);

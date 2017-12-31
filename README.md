@@ -30,6 +30,7 @@
  * Adds a bit of overhead but more than makes up for it with the development speed-up
 
 
+ 
 StrangeIoC - Updated
 ==========
 ## What
@@ -60,6 +61,8 @@ StrangeIoC - Updated
 ## Development progress
  * Finished
  
+ 
+ 
 UniRx
 =====
 
@@ -86,6 +89,7 @@ UniRx
 ## Development progress
  * Finished
 
+ 
  
 Event sourcing framework
 ==============
@@ -119,6 +123,7 @@ Event sourcing framework
  * Largely finished
 
  
+ 
 Entity Management framework
 ==============
 
@@ -142,6 +147,7 @@ Entity Management framework
 ## Development progress
  * In progress
 
+ 
  
 Serialisation and persistence framework
 ==============
@@ -167,6 +173,7 @@ Serialisation and persistence framework
  * In progress
 
  
+ 
 Photon extensions
 ==================
 
@@ -189,6 +196,7 @@ Photon extensions
  * In progress
 
  
+ 
 Menu system 
 ===========
 ## What
@@ -208,6 +216,7 @@ Menu system
 ## Development progress
  * In progress
 
+ 
 
 Input system
 =======================================
@@ -221,7 +230,7 @@ Input system
  * IoC, ES integrated (In progress)
  * Customisable key mappings (In progress)
  * Blended mouse/touch functions (In progress)
- 
+
 ## Docs and references
 
 ## Drawbacks
@@ -230,6 +239,19 @@ Input system
 ## Development progress
  * In progress
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
  

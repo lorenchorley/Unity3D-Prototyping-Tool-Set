@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 namespace eventsourcing.examples.basic {
 
     public class PersonProjection : IProjection {
 
         public Colors c;
+
+        public IDisposable CancelToken { get; set; }
 
         public PersonProjection(Colors c) {
             this.c = c;
@@ -22,8 +25,9 @@ namespace eventsourcing.examples.basic {
 
         public void OnFinish() {
             // Nothing to do
+            Debug.Log("Finish".Colored(c));
         }
-
+        
     }
 
 }

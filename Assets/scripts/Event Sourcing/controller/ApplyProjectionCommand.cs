@@ -10,7 +10,7 @@ namespace eventsourcing.examples {
         [Inject] public IProjection Projection { get; set; }
 
         public override void Execute() {
-            ES.ApplyProjection(Projection);
+            //ES.ApplyProjection(Projection);
         }
 
     }

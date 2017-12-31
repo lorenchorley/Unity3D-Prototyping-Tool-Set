@@ -1,12 +1,15 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
-namespace eventsourcing.examples.network {
+namespace eventsourcing {
 
     public class HashProjection : IProjection {
 
         private int hashcode;
         private EventSource ES;
+
+        public IDisposable CancelToken { get; set; }
 
         public HashProjection(EventSource ES) {
             this.ES = ES;

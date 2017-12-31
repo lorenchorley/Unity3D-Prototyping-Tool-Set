@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEditor;
 using UniRx;
 using System;
-using static ProductionSerialisationTools;
+using System.Text;
+using eventsourcing.examples.network;
 
 namespace eventsourcing {
 
@@ -28,11 +29,14 @@ namespace eventsourcing {
         }
 
         private void PrintEventQueue(EventSource ES) {
-            d = ES.AllEventObservable
-                .Subscribe(e => {
-                    string sx = e.SerialiseToJSONString();
-                    Debug.Log(e.ToString() + "\n\n" + sx + "\n\n");
-                });
+            ES.AllEventObservable.Dump("Events");
+            //IProjection proj = new ForEachProjection(ES, e => {
+            //    byte[] sx = Serialisation.ToBinary(e);
+            //    Debug.Log(e.ToString() + "\n\n" + Encoding.ASCII.GetString(sx) + "\n\n");
+            //});
+            //ES.ApplyProjection(proj, EventStream.AllExistingEvents); // Finishes non-conncurrently
+            //ES.ApplyProjection(proj, EventStream.NewEvents); // Continues
+            //d = proj.CancelToken;
         }
 
     }

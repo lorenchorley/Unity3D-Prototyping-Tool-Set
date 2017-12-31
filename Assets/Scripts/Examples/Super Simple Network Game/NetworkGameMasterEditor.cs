@@ -29,7 +29,7 @@ namespace eventsourcing.examples.network {
             PositionCheckProjection proj = new PositionCheckProjection();
             PlayerRegistry PlayerRegistry = p.EM.GetRegistry<PlayerRegistry>();
             proj.PlayerCount = PlayerRegistry.EntityCount;
-            p.ES.ApplyProjection(proj);
+            p.ES.ApplyProjection(proj, EventStream.AllExistingEvents);
 
             PlayerPositionQuery q = new PlayerPositionQuery();
 
@@ -42,7 +42,7 @@ namespace eventsourcing.examples.network {
 
         private void PrintHash(NetworkGameMaster p) {
             HashProjection proj = new HashProjection(p.ES);
-            p.ES.ApplyProjection(proj);
+            p.ES.ApplyProjection(proj, EventStream.AllExistingEvents);
 
             Debug.Log(proj.GetHashCode());
 

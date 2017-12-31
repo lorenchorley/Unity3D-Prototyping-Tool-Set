@@ -7,14 +7,15 @@ namespace eventsourcing.examples.network {
 
         private int uid;
         public int UID { get { return uid; } }
-        
-        public int Index { get; set; }
+
+        public EntityKey Key { get; set; }
 
         public PlayerComponent PlayerComponent;
         private Vector2 position;
 
-        public PlayerEntity(int uid) {
+        public PlayerEntity(int uid, EntityKey Key) {
             this.uid = uid;
+            this.Key = Key;
             position = Vector2.zero;
         }
 

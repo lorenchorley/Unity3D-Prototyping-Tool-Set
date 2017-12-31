@@ -9,6 +9,8 @@ namespace eventsourcing.examples.network {
         public List<PlayerComponent> Players;
         public Vector3[] PlayerPositions;
 
+        public IDisposable CancelToken { get; set; }
+
         public void Reset() {
             PlayerPositions = new Vector3[Players.Count];
         }

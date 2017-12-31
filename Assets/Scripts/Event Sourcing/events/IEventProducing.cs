@@ -9,7 +9,7 @@ namespace eventsourcing {
     public interface IEventProducing {
         
         IEvent Event { get; }
-        bool RecordEvent { get; set; }
+        bool DontRecordEvent { get; set; }
 
     }
 

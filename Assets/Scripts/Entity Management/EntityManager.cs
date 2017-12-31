@@ -44,17 +44,20 @@ namespace eventsourcing {
 
         public void Mod<E, M>(int uid, M m) where M : IModifier where E : IEntity, IModifiable<M> {
             IEntityRegistry<E> registry = (IEntityRegistry<E>) Registries[typeof(E)];
-            var p = registry.GetEntityByUID(uid);
-            Mod(p, m);
+            E e = registry.GetEntityByUID(uid);
+            ApplyMod(m, e.ApplyMod);
         }
 
         public void Mod<E, M>(int uid, IEntityRegistry<E> r, M m) where M : IModifier where E : IEntity, IModifiable<M> {
-            var p = r.GetEntityByUID(uid);
-            Mod(p, m);
+            E e = r.GetEntityByUID(uid);
+            ApplyMod(m, e.ApplyMod);
         }
 
-        public void Mod<E, M>(E e, M m) where M : IModifier where E : IModifiable<M> {
-            ApplyMod(m, e.ApplyMod);
+        public void Mod<E, M>(E e, M m) where M : IModifier where E : IEntity, IModifiable<M> {
+            if (e.GetType().IsValueType) // If the entity is a struct, get the up to date version from the registry first before passing its associated function
+                ApplyMod(m, (e.Key.Registry as IEntityRegistry<E>).GetEntityByKey(e.Key).ApplyMod);
+            else
+                ApplyMod(m, e.ApplyMod);
         }
 
         public void Mod<M>(M m) where M : IModifier {
@@ -74,7 +77,7 @@ namespace eventsourcing {
             if (function == null) {
                 m.Execute();
 
-                if (m is IEventProducing && (m as IEventProducing).RecordEvent) {
+                if (m is IEventProducing && !(m as IEventProducing).DontRecordEvent) {
                     producedEvent = (m as IEventProducing).Event;
                     ES.RegisterEvent(producedEvent);
                 }
@@ -87,18 +90,26 @@ namespace eventsourcing {
         }
 
         public void Query<E, Q>(int uid, Q q) where Q : IQuery where E : IEntity, IQueriable<Q> {
-            IEntityRegistry<E> registry = (IEntityRegistry<E>) Registries[typeof(E)];
-            Query<E, Q>(registry.GetEntityByUID(uid), q);
+            IEntityRegistry<E> r = (IEntityRegistry<E>) Registries[typeof(E)];
+            Query<E, Q>(r.GetEntityByUID(uid), q);
         }
 
         public void Query<E, Q>(int uid, IEntityRegistry<E> r, Q q) where Q : IQuery where E : IEntity, IQueriable<Q> {
             Query(r.GetEntityByUID(uid), q);
         }
 
-        public void Query<E, Q>(E e, Q q) where Q : IQuery where E : IEntity, IQueriable<Q> {
-            e.Query(q);
+        // Better method to use for struct entities, since the entity value never has to be retrived
+        public void Query<E, Q>(EntityKey key, Q q) where Q : IQuery where E : IEntity, IQueriable<Q> {
+            Query((key.Registry as IEntityRegistry<E>).GetEntityByKey(key), q);
         }
 
+        public void Query<E, Q>(E e, Q q) where Q : IQuery where E : IEntity, IQueriable<Q> {
+            if (e.GetType().IsValueType) // If the entity is a struct, get the up to date version from the registry
+                (e.Key.Registry as IEntityRegistry<E>).ApplyQuery<E, Q>(e.Key, q); // Apply query directly to value in registry
+            else
+                e.Query(q);
+        }
+        
     }
 
 }

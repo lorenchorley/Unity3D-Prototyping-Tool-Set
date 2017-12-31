@@ -5,16 +5,16 @@ using System.Collections.Generic;
 namespace eventsourcing {
 
     public interface IEntityRegistry {
+        int EntityCount { get; }
+        IEnumerable<int> UIDs { get; }
     }
 
     public interface IEntityRegistry<E> : IEntityRegistry where E : IEntity {
-
         E GetEntityByUID(int uid);
-        void SetEntity(int uid, E e);
-        int EntityCount { get; }
-        IList<E> Entities { get; }
-        IList<int> UIDs { get; }
-
+        E GetEntityByKey(EntityKey key);
+        void ApplyQuery<F, Q>(EntityKey key, Q q) where Q : IQuery where F : E, IQueriable<Q>; // Good for struct entities, the value doesn't need to move
+        void SetEntity(E e);
+        IEnumerable<E> Entities { get; }
     }
 
 }

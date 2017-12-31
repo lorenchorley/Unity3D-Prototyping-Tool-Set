@@ -3,20 +3,25 @@ using System;
 
 namespace eventsourcing.examples.basic {
 
-    public class PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeMod> {
+    public struct PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeMod> {
 
         private int uid;
         public int UID { get { return uid; } }
         
-        public int Index { get; set; }
+        public EntityKey Key { get; set; }
 
         private int age;
 
-        public PersonEntity(int uid) {
+        public PersonEntity(int uid, EntityKey Key) {
             this.uid = uid;
+            this.Key = Key;
             age = 0;
         }
         
+        private void UpdateRegisteredValue() {
+            (Key.Registry as IEntityRegistry<PersonEntity>).SetEntity(this);
+        }
+
         public IEvent ApplyMod(ChangePersonAgeMod m) {
             // Record old value
             PersonAgeChangedEvent e = new PersonAgeChangedEvent {
@@ -28,6 +33,8 @@ namespace eventsourcing.examples.basic {
 
             // Record new value
             e.NewAge = age;
+
+            UpdateRegisteredValue();
 
             return e;
         }

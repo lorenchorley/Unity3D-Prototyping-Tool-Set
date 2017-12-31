@@ -55,7 +55,7 @@ namespace eventsourcing.examples.network {
         [PunRPC]
         private void HashCheck(int sourcePlayerID) {
             HashProjection hasher = new HashProjection(ES);
-            ES.ApplyProjection(hasher);
+            ES.ApplyProjection(hasher, EventStream.AllExistingEvents);
 
             Debug.Log("HashCheck: " + hasher.GetHashCode());
 

@@ -10,6 +10,8 @@ namespace eventsourcing.examples.network {
         public int PlayerCount;
         public Dictionary<int, Vector2> PlayerPositionsByUID;
 
+        public IDisposable CancelToken { get; set; }
+
         public void Reset() {
             PlayerPositionsByUID = new Dictionary<int, Vector2>();
         }
