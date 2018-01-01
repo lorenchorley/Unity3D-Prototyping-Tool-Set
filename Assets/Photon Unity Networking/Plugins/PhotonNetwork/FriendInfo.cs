@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // <copyright file="FriendInfo.cs" company="Exit Games GmbH">
 //   Loadbalancing Framework for Photon - Copyright (C) 2013 Exit Games GmbH
 // </copyright>

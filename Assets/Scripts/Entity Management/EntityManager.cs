@@ -22,11 +22,11 @@ namespace eventsourcing {
         }
 
         public void ResetWithByteData(byte[] data) {
-            throw new NotImplementedException();
+            Registries = Serialisation.To<Dictionary<Type, IEntityRegistry>>(data);
         }
 
         public void ExtractByteData(Action<byte[]> callback) {
-            throw new NotImplementedException();
+            callback.Invoke(Serialisation.ToBinary(Registries));
         }
 
         public void Register<E>(IEntityRegistry<E> r) where E : IEntity {

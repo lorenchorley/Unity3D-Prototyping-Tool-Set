@@ -4,115 +4,112 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace LorenChorley.PostAvian.Helpers {
+public class InputterTester : MonoBehaviour {
 
-    public class InputterTester : MonoBehaviour {
+    public Inputter inputter;
 
-        public Inputter inputter;
+    public Text MainMessage;
+    public Text Touches;
 
-        public Text MainMessage;
-        public Text Touches;
+    public ScrollRect ScrollRect;
+    public RectTransform Console;
+    public GameObject ConsoleItemTemplate;
 
-        public ScrollRect ScrollRect;
-        public RectTransform Console;
-        public GameObject ConsoleItemTemplate;
+    private bool IsPrimaryActionOverUI() {
+        if (Input.touchCount > 0) {
 
-        private bool IsPrimaryActionOverUI() {
-            if (Input.touchCount > 0) {
+            for (int i = 0; i < Input.touchCount; i++) {
+                Touch t = Input.touches[i];
 
-                for (int i = 0; i < Input.touchCount; i++) {
-                    Touch t = Input.touches[i];
+                if (!inputter.IsPositionOverUI(t.position))
+                    return false;
+            }
 
-                    if (!inputter.IsPositionOverUI(t.position))
-                        return false;
+            return true;
+        } else {
+            return inputter.IsPositionOverUI(Input.mousePosition);
+        }
+    }
+
+    private string previousItemContent = null;
+    private Text previousItemText = null;
+    void Start() {
+
+        Application.logMessageReceived +=
+            (string condition, string stackTrace, LogType type) => {
+                if (IsPrimaryActionOverUI())
+                    return;
+
+                if (previousItemText != null && previousItemContent == condition) {
+                    previousItemText.text += "|";
+                    return;
                 }
 
-                return true;
-            } else {
-                return inputter.IsPositionOverUI(Input.mousePosition);
-            }
-        }
+                GameObject newItem = GameObject.Instantiate<GameObject>(ConsoleItemTemplate);
+                Text newItemText = newItem.GetComponent<Text>();
+                newItemText.text = condition + " ";
+                newItem.transform.SetParent(Console);
 
-        private string previousItemContent = null;
-        private Text previousItemText = null;
-        void Start() {
+                previousItemContent = condition;
+                previousItemText = newItemText;
 
-            Application.logMessageReceived +=
-                (string condition, string stackTrace, LogType type) => {
-                    if (IsPrimaryActionOverUI())
-                        return;
+                switch (type) {
+                case LogType.Assert:
+                    newItemText.color = Color.magenta;
+                    break;
+                case LogType.Warning:
+                    newItemText.color = Color.yellow;
+                    break;
+                case LogType.Error:
+                    newItemText.color = Color.red;
+                    break;
+                case LogType.Exception:
+                    newItemText.color = Color.cyan;
+                    break;
+                }
 
-                    if (previousItemText != null && previousItemContent == condition) {
-                        previousItemText.text += "|";
-                        return;
-                    }
+                if (type != LogType.Log) {
+                    newItemText.text += stackTrace;
+                }
 
-                    GameObject newItem = GameObject.Instantiate<GameObject>(ConsoleItemTemplate);
-                    Text newItemText = newItem.GetComponent<Text>();
-                    newItemText.text = condition + " ";
-                    newItem.transform.SetParent(Console);
+                ScrollRect.ScrollToBottom();
 
-                    previousItemContent = condition;
-                    previousItemText = newItemText;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(Console);
+            };
 
-                    switch (type) {
-                    case LogType.Assert:
-                        newItemText.color = Color.magenta;
-                        break;
-                    case LogType.Warning:
-                        newItemText.color = Color.yellow;
-                        break;
-                    case LogType.Error:
-                        newItemText.color = Color.red;
-                        break;
-                    case LogType.Exception:
-                        newItemText.color = Color.cyan;
-                        break;
-                    }
+        inputter = Inputter.GetPlatformAppropriateInputter();
 
-                    if (type != LogType.Log) {
-                        newItemText.text += stackTrace;
-                    }
-
-                    ScrollRect.ScrollToBottom();
-
-                    LayoutRebuilder.ForceRebuildLayoutImmediate(Console);
-                };
-
-            inputter = Inputter.GetPlatformAppropriateInputter();
-
-            inputter.OnPrimaryAction.AddListener((pos) => {
-                MainMessage.text = (AddType(inputter, "primary action event: " + pos));
-            });
-            inputter.OnStartDrag.AddListener((pos) => {
-                MainMessage.text = (AddType(inputter, "start drag event: " + pos));
-            });
-            inputter.OnDrag.AddListener((pos) => {
-                MainMessage.text = (AddType(inputter, "drag event: " + pos));
-            });
-            inputter.OnEndDrag.AddListener((pos) => {
-                MainMessage.text = (AddType(inputter, "end drag event: " + pos));
-            });
-            inputter.OnZoom.AddListener((delta) => {
-                MainMessage.text = (AddType(inputter, "zoom event: " + delta.ToString("0.00000")));
-            });
-
-        }
-
-        void Update() {
-            inputter.Update();
-            Touches.text = "Touches: " + Input.touchCount;
-        }
-
-        private string AddType(Inputter i, string s) {
-            if (i is MouseInputter) {
-                return "Mouse " + s;
-            } else if (i is TouchInputter) {
-                return "Touch " + s;
-            } else
-                throw new Exception("TODO");
-        }
+        inputter.OnPrimaryAction.AddListener((pos) => {
+            MainMessage.text = (AddType(inputter, "primary action event: " + pos));
+        });
+        inputter.OnStartDrag.AddListener((pos) => {
+            MainMessage.text = (AddType(inputter, "start drag event: " + pos));
+        });
+        inputter.OnDrag.AddListener((pos) => {
+            MainMessage.text = (AddType(inputter, "drag event: " + pos));
+        });
+        inputter.OnEndDrag.AddListener((pos) => {
+            MainMessage.text = (AddType(inputter, "end drag event: " + pos));
+        });
+        inputter.OnZoom.AddListener((delta) => {
+            MainMessage.text = (AddType(inputter, "zoom event: " + delta.ToString("0.00000")));
+        });
 
     }
 
+    void Update() {
+        inputter.Update();
+        Touches.text = "Touches: " + Input.touchCount;
+    }
+
+    private string AddType(Inputter i, string s) {
+        if (i is MouseInputter) {
+            return "Mouse " + s;
+        } else if (i is TouchInputter) {
+            return "Touch " + s;
+        } else
+            throw new Exception("TODO");
+    }
+
 }
+

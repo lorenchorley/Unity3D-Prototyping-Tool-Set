@@ -29,14 +29,8 @@ namespace eventsourcing {
         }
 
         private void PrintEventQueue(EventSource ES) {
-            ES.AllEventObservable.Dump("Events");
-            //IProjection proj = new ForEachProjection(ES, e => {
-            //    byte[] sx = Serialisation.ToBinary(e);
-            //    Debug.Log(e.ToString() + "\n\n" + Encoding.ASCII.GetString(sx) + "\n\n");
-            //});
-            //ES.ApplyProjection(proj, EventStream.AllExistingEvents); // Finishes non-conncurrently
-            //ES.ApplyProjection(proj, EventStream.NewEvents); // Continues
-            //d = proj.CancelToken;
+            ES.AllEventObservable.Dump().Subscribe();
+            d = ES.NewEventObservable.Dump().Subscribe();
         }
 
     }

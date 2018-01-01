@@ -24,7 +24,7 @@ namespace eventsourcing.examples.basic {
                 NewAge = OldAge
             };
         }
-
+        
         public override string ToString() {
             return "Person Age Changed from " + OldAge + " to " + NewAge;
         }

@@ -224,7 +224,7 @@ Input system
  * Cross-platform and cross-device input system
  
 ## Why 
- * Because it's a tricky system to make and just about every game needs it
+ * Because it's a tricky system to make and every game needs one
 
 ## Features
  * IoC, ES integrated (In progress)
@@ -241,13 +241,25 @@ Input system
 
  
  
+Examples
+=======================================
  
- 
- 
- 
- 
- 
- 
+## Basic Entity Management
+
+Give an idea about several other functions like serialisation, persistence, event sourcing and projections, 
+
+## Basic Input Management
+## Super Simple Network Game
+
+This example is where most of the frameworks in this project are combined in a single simple game. The game is so simple to be uninteresting, but it shows how to connect all the individual frameworks and managers through the IoC framework. It includes network synchronisation, event sourcing, input, entity and menu management as well some examples of the use of Rx and other smaller helper methods and extensions.
+
+## IoC
+
+The examples that come with the StrangeIoC framework
+
+## Rx
+
+A set of Rx examples including those that come with the UniRx implementation
  
  
  

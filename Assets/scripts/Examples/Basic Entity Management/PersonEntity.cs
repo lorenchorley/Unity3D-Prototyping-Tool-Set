@@ -1,9 +1,11 @@
 using UnityEngine;
 using System;
+using UnityEngine.Assertions;
 
 namespace eventsourcing.examples.basic {
 
-    public struct PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeMod> {
+    [Serializable]
+    public struct PersonEntity : IEntity, IQueriable<PersonAgeQuery>, IModifiable<ChangePersonAgeMod>, ISerialisationCloning {
 
         private int uid;
         public int UID { get { return uid; } }
@@ -11,7 +13,7 @@ namespace eventsourcing.examples.basic {
         public EntityKey Key { get; set; }
 
         private int age;
-
+        
         public PersonEntity(int uid, EntityKey Key) {
             this.uid = uid;
             this.Key = Key;
@@ -19,7 +21,7 @@ namespace eventsourcing.examples.basic {
         }
         
         private void UpdateRegisteredValue() {
-            (Key.Registry as IEntityRegistry<PersonEntity>).SetEntity(this);
+            (Key.Registry as PersonRegistry).SetEntity(ref this);
         }
 
         public IEvent ApplyMod(ChangePersonAgeMod m) {
@@ -42,6 +44,29 @@ namespace eventsourcing.examples.basic {
         public void Query(PersonAgeQuery q) {
             q.Age = age;
         }
+
+        // Private serialisation pattern
+        [Serializable] class Serialisable {
+            public int uid;
+            public int age;
+        }
+
+        public void DeserialiseFromClonedObject(object clone) {
+            Serialisable s = clone as Serialisable;
+            Assert.IsNotNull(s);
+
+            uid = s.uid;
+            age = s.age;
+
+        }
+
+        public object CloneToSerialisedObject() {
+            return new Serialisable {
+                uid = uid,
+                age = age
+            };
+        }
+
     }
 
 }

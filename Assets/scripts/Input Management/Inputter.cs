@@ -1,4 +1,5 @@
 
+using strange.extensions.signal.impl;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,13 +8,11 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace LorenChorley.PostAvian.Helpers {
+public abstract class Inputter {
 
-    public abstract class Inputter {
-
-        public static Inputter GetPlatformAppropriateInputter() {
+    public static Inputter GetPlatformAppropriateInputter() {
 #if UNITY_EDITOR
-            return new MouseInputter();
+        return new MouseInputter();
 #elif UNITY_ANDROID
         return new TouchInputter();
 #elif UNITY_STANDALONE_WIN
@@ -21,306 +20,305 @@ namespace LorenChorley.PostAvian.Helpers {
 #else
         return new MouseInputter();
 #endif
-        }
+    }
 
-        public class PositionEvent : UnityEvent<Vector2> { }
-        public class NormalisedZoomDeltaEvent : UnityEvent<float> { }
+    public class PositionEvent : StrictSignal<Vector2> { }
+    public class NormalisedZoomDeltaEvent : StrictSignal<float> { }
 
-        public PositionEvent OnPrimaryAction;
-        public PositionEvent OnStartDrag;
-        public PositionEvent OnDrag;
-        public PositionEvent OnEndDrag;
-        public NormalisedZoomDeltaEvent OnZoom;
+    public PositionEvent OnPrimaryAction, OnSecondaryAction; // TODO
+    public PositionEvent OnStartDrag, OnSecondaryStartDrag;
+    public PositionEvent OnDrag, OnSecondaryDrag;
+    public PositionEvent OnEndDrag, OnSecondaryEndDrag;
+    public NormalisedZoomDeltaEvent OnZoom;
 
-        protected abstract bool CanStartClickOrTap();
-        protected abstract bool CanEndClickOrTap();
-        protected abstract bool CanTriggerPrimaryAction();
+    protected abstract bool CanStartClickOrTap();
+    protected abstract bool CanEndClickOrTap();
+    protected abstract bool CanTriggerPrimaryAction();
 
-        protected abstract bool CanStartDrag();
-        protected abstract bool CanEndDrag();
-        protected abstract bool CanZoomAndDragSimultaneously();
+    protected abstract bool CanStartDrag();
+    protected abstract bool CanEndDrag();
+    protected abstract bool CanZoomAndDragSimultaneously();
 
-        protected abstract bool CanStartZoom();
-        protected abstract bool CanEndZoom();
-        protected abstract float GetZoomDelta();
-        protected abstract void RegisterStartOfZoom();
-        protected abstract bool CanMaintainZoomWithoutZooming();
+    protected abstract bool CanStartZoom();
+    protected abstract bool CanEndZoom();
+    protected abstract float GetZoomDelta();
+    protected abstract void RegisterStartOfZoom();
+    protected abstract bool CanMaintainZoomWithoutZooming();
 
-        protected abstract Vector2 GetScreenPosition();
+    protected abstract Vector2 GetScreenPosition();
 
-        public float NormalisedZoomSpeed = 0.01f;
-        public bool DisableOverUI = true;
+    public float NormalisedZoomSpeed = 0.01f;
+    public bool DisableOverUI = true;
 
-        [Space]
+    [Space]
 
-        // Internal values
-        protected float DragThresholdInPixels;
+    // Internal values
+    protected float DragThresholdInPixels;
 
-        // Drag and click related
-        protected bool IsAttemptingDrag = false;
-        protected bool IsDragging = false;
-        protected Vector2 DragStartPosition, LastDragPosition;
-        //public bool IsBlockingClickTapDragActions = false;
+    // Drag and click related
+    protected bool IsAttemptingDrag = false;
+    protected bool IsDragging = false;
+    protected Vector2 DragStartPosition, LastDragPosition;
+    //public bool IsBlockingClickTapDragActions = false;
 
-        // Zoom related
-        protected bool IsZooming = false;
-        protected bool IsZoomingPaused = false;
+    // Zoom related
+    protected bool IsZooming = false;
+    protected bool IsZoomingPaused = false;
 
-        // TODO Remove
-        public string type;
+    // TODO Remove
+    public string type;
 
-        // UI Related
-        private List<RaycastResult> results;
+    // UI Related
+    private List<RaycastResult> results;
 
-        public Inputter() {
-            OnPrimaryAction = new PositionEvent();
-            OnStartDrag = new PositionEvent();
-            OnDrag = new PositionEvent();
-            OnEndDrag = new PositionEvent();
-            OnZoom = new NormalisedZoomDeltaEvent();
+    public Inputter() {
+        OnPrimaryAction = new PositionEvent();
+        OnStartDrag = new PositionEvent();
+        OnDrag = new PositionEvent();
+        OnEndDrag = new PositionEvent();
+        OnZoom = new NormalisedZoomDeltaEvent();
 
-            results = new List<RaycastResult>();
+        results = new List<RaycastResult>();
 
-            RecalculateGlobalDragThreshold();
-        }
+        RecalculateGlobalDragThreshold();
+    }
 
-        public bool IsPositionOverUI(Vector2 position) {
-            PointerEventData pointerData = new PointerEventData(EventSystem.current);
-            pointerData.position = position;
-            results.Clear();
-            EventSystem.current.RaycastAll(pointerData, results);
-            return results.Count > 0;
-        }
+    public bool IsPositionOverUI(Vector2 position) {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+        pointerData.position = position;
+        results.Clear();
+        EventSystem.current.RaycastAll(pointerData, results);
+        return results.Count > 0;
+    }
 
-        public List<RaycastResult> WhatUIIsPositionOver(Vector2 position) {
-            PointerEventData pointerData = new PointerEventData(EventSystem.current);
-            pointerData.position = position;
-            results.Clear();
-            EventSystem.current.RaycastAll(pointerData, results);
-            return results;
-        }
+    public List<RaycastResult> WhatUIIsPositionOver(Vector2 position) {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+        pointerData.position = position;
+        results.Clear();
+        EventSystem.current.RaycastAll(pointerData, results);
+        return results;
+    }
 
-        public void RecalculateGlobalDragThreshold() {
-            EventSystem.current.pixelDragThreshold = Mathf.Max(
-                                                         EventSystem.current.pixelDragThreshold,
-                                                         (int) (EventSystem.current.pixelDragThreshold * Screen.dpi / 160f)
-                                                     );
+    public void RecalculateGlobalDragThreshold() {
+        EventSystem.current.pixelDragThreshold = Mathf.Max(
+                                                     EventSystem.current.pixelDragThreshold,
+                                                     (int) (EventSystem.current.pixelDragThreshold * Screen.dpi / 160f)
+                                                 );
 
-            // Cache locally
-            DragThresholdInPixels = EventSystem.current.pixelDragThreshold;
-        }
+        // Cache locally
+        DragThresholdInPixels = EventSystem.current.pixelDragThreshold;
+    }
 
-        public bool Update() {
+    public bool Update() {
 
-            if (Input.GetMouseButtonDown(0))
-                Assert.IsTrue(Input.GetMouseButtonDown(0));
+        if (Input.GetMouseButtonDown(0))
+            Assert.IsTrue(Input.GetMouseButtonDown(0));
 
-            if (TryEndZoom())
-                return true;
+        if (TryEndZoom())
+            return true;
 
-            if (TryZoom())
-                return true;
+        if (TryZoom())
+            return true;
 
-            if (TryStartZoom())
-                return true;
+        if (TryStartZoom())
+            return true;
 
-            if (TryEndDragOrDetectClickOrTap())
-                return true;
+        if (TryEndDragOrDetectClickOrTap())
+            return true;
 
-            if (TryDrag())
-                return true;
+        if (TryDrag())
+            return true;
 
-            if (TryStartClickTapOrDrag())
-                return true;
+        if (TryStartClickTapOrDrag())
+            return true;
 
-            return false;
-        }
+        return false;
+    }
 
-        private bool TryEndZoom() {
+    private bool TryEndZoom() {
 
-            if (IsZooming) {
+        if (IsZooming) {
 
-                if (CanMaintainZoomWithoutZooming()) {
+            if (CanMaintainZoomWithoutZooming()) {
 
-                    IsZoomingPaused = true;
-                    IsZooming = false;
+                IsZoomingPaused = true;
+                IsZooming = false;
 
-                    DebugLog("Paused zooming");
-
-                    return true;
-                } else if (CanEndZoom()) {
-
-                    IsZooming = false;
-
-                    DebugLog(type + "End zoom");
-
-                    return !CanZoomAndDragSimultaneously(); // Allow drag events while zooming if required
-                }
-
-            } else if (IsZoomingPaused) {
-
-                if (CanStartZoom()) {
-                    DebugLog("Unpaused zooming");
-                    IsZoomingPaused = false;
-                    IsZooming = true;
-
-                    RegisterStartOfZoom();
-
-                    return false;
-                } else if (CanEndZoom()) {
-
-                    IsZoomingPaused = false;
-
-                    DebugLog(type + "End zoom");
-
-                    return !CanZoomAndDragSimultaneously(); // Allow drag events while zooming if required
-                }
+                DebugLog("Paused zooming");
 
                 return true;
-            }
+            } else if (CanEndZoom()) {
 
-            return false;
-        }
+                IsZooming = false;
 
-        private bool TryZoom() {
-
-            if (IsZooming) {
-
-                OnZoom.Invoke(GetZoomDelta());
-
-                DebugLog(type + "Zooming");
+                DebugLog(type + "End zoom");
 
                 return !CanZoomAndDragSimultaneously(); // Allow drag events while zooming if required
             }
 
-            return false;
-        }
-
-        private bool TryStartZoom() {
+        } else if (IsZoomingPaused) {
 
             if (CanStartZoom()) {
-
+                DebugLog("Unpaused zooming");
+                IsZoomingPaused = false;
                 IsZooming = true;
 
                 RegisterStartOfZoom();
 
-                OnZoom.Invoke(GetZoomDelta());
+                return false;
+            } else if (CanEndZoom()) {
 
-                DebugLog(type + "Start zoom");
+                IsZoomingPaused = false;
 
-                // End any drag currently in progress, if necessary
-                if (!CanZoomAndDragSimultaneously()) {
+                DebugLog(type + "End zoom");
 
-                    // Do not register click or tap, just stop
-                    IsDragging = false;
-                    IsAttemptingDrag = false;
-
-                    return false; // So that drag events may happen as well
-                } else {
-                    return true; // Block any further events
-                }
-
+                return !CanZoomAndDragSimultaneously(); // Allow drag events while zooming if required
             }
 
-            return false;
+            return true;
         }
 
+        return false;
+    }
 
-        private bool TryEndDragOrDetectClickOrTap() {
+    private bool TryZoom() {
 
-            if (CanEndDrag()) {
-                if (IsDragging) {
+        if (IsZooming) {
 
-                    IsDragging = false;
+            OnZoom.Dispatch(GetZoomDelta());
 
-                    OnEndDrag.Invoke(LastDragPosition);
+            DebugLog(type + "Zooming");
 
-                    DebugLog(type + "End drag");
+            return !CanZoomAndDragSimultaneously(); // Allow drag events while zooming if required
+        }
 
-                    return true;
-                } else if (IsAttemptingDrag) {
+        return false;
+    }
 
-                    IsAttemptingDrag = false;
+    private bool TryStartZoom() {
 
-                    if (CanTriggerPrimaryAction()) {
-                        OnPrimaryAction.Invoke(LastDragPosition);
-                    }
+        if (CanStartZoom()) {
 
-                    DebugLog(type + "End drag with click or tap");
+            IsZooming = true;
 
-                    return true;
-                }
+            RegisterStartOfZoom();
+
+            OnZoom.Dispatch(GetZoomDelta());
+
+            DebugLog(type + "Start zoom");
+
+            // End any drag currently in progress, if necessary
+            if (!CanZoomAndDragSimultaneously()) {
+
+                // Do not register click or tap, just stop
+                IsDragging = false;
+                IsAttemptingDrag = false;
+
+                return false; // So that drag events may happen as well
+            } else {
+                return true; // Block any further events
             }
 
-            return false;
         }
 
-        private bool TryDrag() {
+        return false;
+    }
 
+
+    private bool TryEndDragOrDetectClickOrTap() {
+
+        if (CanEndDrag()) {
             if (IsDragging) {
 
-                Vector2 currentPosition = GetScreenPosition();
+                IsDragging = false;
 
-                // Check if mouse or touch has moved since last frame
-                if (currentPosition != LastDragPosition) {
+                OnEndDrag.Dispatch(LastDragPosition);
 
-                    OnDrag.Invoke(GetScreenPosition());
-                    LastDragPosition = currentPosition;
+                DebugLog(type + "End drag");
 
-                    DebugLog(type + "Dragging");
-
-                }
-
-                // Want to block if dragging, whether a displacement was made or not
                 return true;
-            }
+            } else if (IsAttemptingDrag) {
 
-            return false;
-        }
+                IsAttemptingDrag = false;
 
-        private bool TryStartClickTapOrDrag() {
-            Assert.IsFalse(IsDragging); // IsDragging here is irrelevant based on Update ordering
-
-            if (IsAttemptingDrag) {
-
-                LastDragPosition = GetScreenPosition();
-                float distanceFromStart = (LastDragPosition - DragStartPosition).magnitude;
-
-                if (distanceFromStart >= DragThresholdInPixels) {
-
-                    IsDragging = true;
-                    IsAttemptingDrag = false;
-
-                    OnStartDrag.Invoke(LastDragPosition);
-
-                    DebugLog(type + "Started drag");
-
-                    return true;
+                if (CanTriggerPrimaryAction()) {
+                    OnPrimaryAction.Dispatch(LastDragPosition);
                 }
 
-            } else if (CanStartDrag()) {
-
-                Vector2 screenPosition = GetScreenPosition();
-
-                if (DisableOverUI && IsPositionOverUI(screenPosition)) {
-                    return true;
-                }
-
-                IsAttemptingDrag = true;
-                DragStartPosition = screenPosition;
-
-                DebugLog(type + "Attempting to start drag");
+                DebugLog(type + "End drag with click or tap");
 
                 return true;
             }
-
-            return false;
         }
 
-        private void DebugLog(string text) {
-            //Debug.Log(text);
+        return false;
+    }
+
+    private bool TryDrag() {
+
+        if (IsDragging) {
+
+            Vector2 currentPosition = GetScreenPosition();
+
+            // Check if mouse or touch has moved since last frame
+            if (currentPosition != LastDragPosition) {
+
+                OnDrag.Dispatch(GetScreenPosition());
+                LastDragPosition = currentPosition;
+
+                DebugLog(type + "Dragging");
+
+            }
+
+            // Want to block if dragging, whether a displacement was made or not
+            return true;
         }
 
+        return false;
+    }
+
+    private bool TryStartClickTapOrDrag() {
+        Assert.IsFalse(IsDragging); // IsDragging here is irrelevant based on Update ordering
+
+        if (IsAttemptingDrag) {
+
+            LastDragPosition = GetScreenPosition();
+            float distanceFromStart = (LastDragPosition - DragStartPosition).magnitude;
+
+            if (distanceFromStart >= DragThresholdInPixels) {
+
+                IsDragging = true;
+                IsAttemptingDrag = false;
+
+                OnStartDrag.Dispatch(LastDragPosition);
+
+                DebugLog(type + "Started drag");
+
+                return true;
+            }
+
+        } else if (CanStartDrag()) {
+
+            Vector2 screenPosition = GetScreenPosition();
+
+            if (DisableOverUI && IsPositionOverUI(screenPosition)) {
+                return true;
+            }
+
+            IsAttemptingDrag = true;
+            DragStartPosition = screenPosition;
+
+            DebugLog(type + "Attempting to start drag");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void DebugLog(string text) {
+        //Debug.Log(text);
     }
 
 }
+

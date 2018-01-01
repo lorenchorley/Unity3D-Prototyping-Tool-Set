@@ -39,7 +39,9 @@ namespace eventsourcing {
         }
 
         public void ExtractByteData(Action<byte[]> callback) {
-            callback.Invoke(ZeroFormatterSerializer.Serialize(allEvents.ToArray()));
+            IEvent[] array = allEvents.ToArray();
+            byte[] binary = Serialisation.ToBinary(array);
+            callback.Invoke(binary);
         }
 
         private void CheckForEM() {

@@ -5,7 +5,7 @@ using System;
 
 namespace eventsourcing.examples.network {
 
-    public class PlayerRegistry : IEntityRegistry<PlayerEntity> {
+    public class PlayerRegistry : IReferenceEntityRegistry<PlayerEntity> {
 
         private int newUID = 0;
         private List<int> uids;
@@ -71,6 +71,15 @@ namespace eventsourcing.examples.network {
         public void ApplyQuery<F, Q>(EntityKey key, Q q) where F : PlayerEntity, IQueriable<Q> where Q : IQuery {
             ((F) entities[key.Index]).Query(q);
         }
+
+        public void OnAfterDeserialise(params object[] p) {
+            throw new NotImplementedException();
+        }
+
+        public void OnBeforeSerialise(params object[] p) {
+            throw new NotImplementedException();
+        }
+
     }
 
 }

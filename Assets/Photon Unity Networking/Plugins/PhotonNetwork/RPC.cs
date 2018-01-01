@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 1587
 /// \file
 /// <summary>Reimplements a RPC Attribute, as it's no longer in all versions of the UnityEngine assembly.</summary>

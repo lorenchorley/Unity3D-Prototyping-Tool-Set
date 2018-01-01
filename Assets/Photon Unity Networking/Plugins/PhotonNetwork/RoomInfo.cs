@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // <copyright file="RoomInfo.cs" company="Exit Games GmbH">
 //   Loadbalancing Framework for Photon - Copyright (C) 2011 Exit Games GmbH
 // </copyright>

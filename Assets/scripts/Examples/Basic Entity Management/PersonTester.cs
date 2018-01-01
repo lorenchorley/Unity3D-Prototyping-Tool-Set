@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System.Text;
+using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace eventsourcing.examples.basic {
 
@@ -20,7 +23,7 @@ namespace eventsourcing.examples.basic {
 
             PersonAgeQuery q = new PersonAgeQuery();
             EM.Query(p, q);
-            Debug.Log("Age: " + q.Age + " Expecting 0 - new person");
+            Assert.IsTrue(q.Age == 0, "New person");
 
             Debug.Log("Applying age change to 20");
             ChangePersonAgeMod c = new ChangePersonAgeMod { NewAge = 20 };
@@ -28,7 +31,7 @@ namespace eventsourcing.examples.basic {
 
             q = new PersonAgeQuery();
             EM.Query(personUID, r, q);
-            Debug.Log("Age: " + q.Age + " Expecting 20");
+            Assert.IsTrue(q.Age == 20);
 
             Debug.Log("Applying age change to 21");
             c = new ChangePersonAgeMod { NewAge = 21 };
@@ -36,7 +39,7 @@ namespace eventsourcing.examples.basic {
 
             q = new PersonAgeQuery();
             EM.Query(p, q);
-            Debug.Log("Age: " + q.Age + " Expecting 21");
+            Assert.IsTrue(q.Age == 21);
 
             Debug.Log("Projecting all events until end:");
             IProjection proj = new PersonProjection(Colors.cyan);
@@ -61,11 +64,22 @@ namespace eventsourcing.examples.basic {
             Debug.Log("Undoing 2");
             ES.Undo(2);
 
-
             Debug.Log("Projecting all events until end:");
-             proj = new PersonProjection(Colors.cyan);
+            proj = new PersonProjection(Colors.cyan);
             ES.ApplyProjection(proj, EventStream.AllExistingEvents);
+            
+            Debug.Log("Serialising...");
+            ES.ExtractByteData(bx => {
+                Debug.Log("Serialised to " + bx.Length + " bytes");
 
+                Debug.Log("Deserialising...");
+                ES.ResetWithByteData(bx);
+
+                Debug.Log("Projecting all events until end:");
+                proj = new PersonProjection(Colors.green);
+                ES.ApplyProjection(proj, EventStream.AllExistingEvents);
+
+            });
 
         }
 
