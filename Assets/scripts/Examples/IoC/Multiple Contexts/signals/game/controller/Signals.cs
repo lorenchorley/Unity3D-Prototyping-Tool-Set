@@ -2,7 +2,7 @@ using System;
 using strange.extensions.signal.impl;
 
 namespace strange.examples.multiplecontexts.signals.game {
-    public class GAME_START_SIGNAL : Signal { }
+    //public class GAME_START_SIGNAL : Signal { }
     public class ADD_TO_SCORE : Signal<int> { }
     public class GAME_OVER : Signal { }
     public class GAME_UPDATE : StrictSignal { }

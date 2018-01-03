@@ -11,9 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d8b4639d384cf04a97079c411955ff6, type: 3}
   m_Name: DebuggingOptions
   m_EditorClassIdentifier: 
-  LogEventDispatches: 0
-  LogSignalDispatches: 0
-  LogCommandExecutions: 0
+  LogEventDispatches: 1
+  LogSignalDispatches: 1
+  LogCommandExecutions: 1
   LogBinderCreation: 0
   IgnoreNamingConventions: 1
   SignalNamingConventions:

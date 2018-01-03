@@ -34,26 +34,26 @@ namespace strange.examples.multiplecontexts.signals.social {
         public SocialSignalContext() {
         }
 
-        public SocialSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public SocialSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, true) {
         }
 
         // Unbind the default EventCommandBinder and rebind the SignalCommandBinder
-        protected override void addCoreComponents() {
-            base.addCoreComponents();
-            injectionBinder.Unbind<ICommandBinder>();
-            injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
-        }
+        //protected override void addCoreComponents() {
+        //    base.addCoreComponents();
+        //    injectionBinder.Unbind<ICommandBinder>();
+        //    injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
+        //}
 
-        // Override Start so that we can fire the StartSignal 
-        override public IContext Start() {
-            base.Start();
-            SOCIAL_START_SIGNAL startSignal = (SOCIAL_START_SIGNAL) injectionBinder.GetInstance<SOCIAL_START_SIGNAL>();
-            startSignal.Dispatch();
-            return this;
-        }
+        //// Override Start so that we can fire the StartSignal 
+        //override public IContext Start() {
+        //    base.Start();
+        //    SOCIAL_START_SIGNAL startSignal = (SOCIAL_START_SIGNAL) injectionBinder.GetInstance<SOCIAL_START_SIGNAL>();
+        //    startSignal.Dispatch();
+        //    return this;
+        //}
 
         protected override void mapBindings() {
-            commandBinder.Rebind<SOCIAL_START_SIGNAL>().To<StartCommand>().Once();
+            commandBinder.Rebind<ContextStartSignal>().To<StartCommand>().Once();
             commandBinder.Rebind<FULFILL_CURRENT_USER_REQUEST>().To<CreateUserTileCommand>();
 
             commandBinder.Rebind<GAME_COMPLETE>().InSequence()

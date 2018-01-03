@@ -28,7 +28,7 @@ namespace strange.examples.myfirstproject.events {
         public MyFirstContext() : base() {
         }
 
-        public MyFirstContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public MyFirstContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, false) {
         }
 
         protected override void mapBindings() {

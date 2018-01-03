@@ -33,7 +33,7 @@ namespace strange.examples.multiplecontexts.events.social {
         public SocialContext() : base() {
         }
 
-        public SocialContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public SocialContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, false) {
         }
 
         protected override void mapBindings() {

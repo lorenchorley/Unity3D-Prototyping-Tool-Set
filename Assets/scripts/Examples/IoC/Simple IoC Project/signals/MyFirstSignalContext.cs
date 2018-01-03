@@ -28,24 +28,9 @@ namespace strange.examples.myfirstproject.signals {
         public MyFirstSignalContext() {
         }
 
-        public MyFirstSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public MyFirstSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, true) {
         }
-
-        // Unbind the default EventCommandBinder and rebind the SignalCommandBinder
-        protected override void addCoreComponents() {
-            base.addCoreComponents();
-            injectionBinder.Unbind<ICommandBinder>();
-            injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
-        }
-
-        // Override Start so that we can fire the StartSignal 
-        override public IContext Start() {
-            base.Start();
-            SOCIAL_START_SIGNAL startSignal = (SOCIAL_START_SIGNAL) injectionBinder.GetInstance<SOCIAL_START_SIGNAL>();
-            startSignal.Dispatch();
-            return this;
-        }
-
+        
         protected override void mapBindings() {
 
             //Injection binding.
@@ -65,7 +50,7 @@ namespace strange.examples.myfirstproject.signals {
 
             //The START event is fired as soon as mappings are complete.
             //Note how we've bound it "Once". This means that the mapping goes away as soon as the command fires.
-            commandBinder.Bind<SOCIAL_START_SIGNAL>().To<StartCommand>().Once();
+            commandBinder.Bind<ContextStartSignal>().To<StartCommand>().Once();
 
             injectionBinder.Bind<SCORE_CHANGE>().ToSingleton();
             injectionBinder.Bind<FULFILL_SERVICE_REQUEST>().ToSingleton();

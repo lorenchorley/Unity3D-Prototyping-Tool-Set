@@ -49,6 +49,8 @@ namespace strange.extensions.context.impl {
             }
         }
 
+        protected bool UseSignals;
+
 #if UNITY_EDITOR
         public static ContextDebuggingOptions DebuggingOptions;
 #endif
@@ -59,7 +61,9 @@ namespace strange.extensions.context.impl {
         public Context() {
         }
 
-        public Context(object view, bool autoStartup) {
+        public Context(object view, bool autoStartup, bool useSignals) {
+            UseSignals = useSignals; 
+
             //If firstContext was unloaded, the contextView will be null. Assign the new context as firstContext.
             if (_firstContext == null || _firstContext.GetContextView() == null) {
                 _firstContext = this;

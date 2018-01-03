@@ -35,27 +35,27 @@ namespace strange.examples.multiplecontexts.signals.main {
         public MainSignalContext() {
         }
 
-        public MainSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public MainSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, true) {
         }
 
         // Unbind the default EventCommandBinder and rebind the SignalCommandBinder
-        protected override void addCoreComponents() {
-            base.addCoreComponents();
-            injectionBinder.Unbind<ICommandBinder>();
-            injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
-        }
+        //protected override void addCoreComponents() {
+        //    base.addCoreComponents();
+        //    injectionBinder.Unbind<ICommandBinder>();
+        //    injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
+        //}
 
-        // Override Start so that we can fire the StartSignal 
-        override public IContext Start() {
-            base.Start();
-            MAIN_START_SIGNAL startSignal = (MAIN_START_SIGNAL) injectionBinder.GetInstance<MAIN_START_SIGNAL>();
-            startSignal.Dispatch();
-            return this;
-        }
+        //// Override Start so that we can fire the StartSignal 
+        //override public IContext Start() {
+        //    base.Start();
+        //    MAIN_START_SIGNAL startSignal = (MAIN_START_SIGNAL) injectionBinder.GetInstance<MAIN_START_SIGNAL>();
+        //    startSignal.Dispatch();
+        //    return this;
+        //}
 
         protected override void mapBindings() {
 
-            commandBinder.Bind<MAIN_START_SIGNAL>().To<StartCommand>().Once();
+            commandBinder.Bind<ContextStartSignal>().To<StartCommand>().Once();
             commandBinder.Bind<LOAD_SCENE>().To<LoadSceneCommand>();
             commandBinder.Bind<GAME_COMPLETE>().To<GameCompleteCommand>();
             commandBinder.Bind<MAIN_REMOVE_SOCIAL_CONTEXT>().To<ReceiveCompleteCommand>();

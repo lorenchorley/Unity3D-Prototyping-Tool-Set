@@ -32,7 +32,7 @@ namespace strange.examples.multiplecontexts.events.game {
         public GameContext() : base() {
         }
 
-        public GameContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public GameContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, false) {
         }
 
         protected override void mapBindings() {

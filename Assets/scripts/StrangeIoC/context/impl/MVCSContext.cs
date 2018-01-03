@@ -189,9 +189,11 @@ namespace strange.extensions.context.impl {
         /// A list of Views Awake before the Context is fully set up.
         protected static ISemiBinding viewCache = new SemiBinding();
 
+        protected ContextStartSignal StartSignal;
+
         public MVCSContext() { }
 
-        public MVCSContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public MVCSContext(MonoBehaviour view, bool autoStartup, bool useSignals) : base(view, autoStartup, useSignals) {
         }
 
         override public IContext SetContextView(object view) {
@@ -209,7 +211,14 @@ namespace strange.extensions.context.impl {
             base.addCoreComponents();
             injectionBinder.Bind<IInjectionBinder>().ToValue(injectionBinder);
             injectionBinder.Bind<IContext>().ToValue(this).ToName(ContextKeys.CONTEXT);
-            injectionBinder.Bind<ICommandBinder>().To<EventCommandBinder>().ToSingleton();
+
+            // Bind appropriate command binder
+            if (UseSignals) {
+                injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
+                //injectionBinder.Bind<ContextStartSignal>().ToSingleton(); // TODO fix problem with binding commands
+            } else
+                injectionBinder.Bind<ICommandBinder>().To<EventCommandBinder>().ToSingleton();
+
             //This binding is for local dispatchers
             injectionBinder.Bind<IEventDispatcher>().To<EventDispatcher>();
             //This binding is for the common system bus
@@ -239,10 +248,25 @@ namespace strange.extensions.context.impl {
             mediateViewCache();
         }
 
-        /// Fires ContextEvent.START
+        /// Fires ContextEvent.START and ContextStartSignal
         /// Whatever Command/Sequence you want to happen first should 
         /// be mapped to this event.
         public override void Launch() {
+            if (UseSignals) {
+                ContextStartSignal startSignal = null;
+
+                try {
+                    startSignal = (ContextStartSignal) injectionBinder.GetInstance<ContextStartSignal>();
+                } catch { }
+
+                if (startSignal != null) {
+                    startSignal.Dispatch();
+                } else {
+                    commandBinder.ReactTo(typeof(ContextStartSignal));
+                }
+
+            }
+
             dispatcher.Dispatch(ContextEvent.START);
         }
 

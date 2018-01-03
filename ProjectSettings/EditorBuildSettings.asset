@@ -4,31 +4,4 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes:
-  - enabled: 1
-    path: Assets/Scenes/EventSource/ES.unity
-    guid: 086b95220f8cf854383bd0ab4a567a78
-  - enabled: 1
-    path: Assets/Scenes/Multiple Contexts/events/main-events.unity
-    guid: e97050146cdfa90468535fe89ea221d1
-  - enabled: 1
-    path: Assets/Scenes/Multiple Contexts/events/game-events.unity
-    guid: ac10d3c9aee2a2240bba19ced6b3209b
-  - enabled: 1
-    path: Assets/Scenes/Multiple Contexts/events/social-events.unity
-    guid: 0cae9255ddafd5b418044fcddfcce4f8
-  - enabled: 1
-    path: Assets/Scenes/My First Project/events/TestView-events.unity
-    guid: a3464ecdfa3857347839ad2a066fdc65
-  - enabled: 1
-    path: Assets/Scenes/My First Project/signals/TestView-signals.unity
-    guid: ff1e6d4f6cbc84088b859d53c36712ad
-  - enabled: 1
-    path: Assets/Scenes/Multiple Contexts/signals/game-signals.unity
-    guid: 63cc202a6aefd4364ab9d942a24c0716
-  - enabled: 1
-    path: Assets/Scenes/Multiple Contexts/signals/main-signals.unity
-    guid: c8ed8038df3b647b68e612bd6fde86e0
-  - enabled: 1
-    path: Assets/Scenes/Multiple Contexts/signals/social-signals.unity
-    guid: ca117a9bbd0d14ec294e0e9ae05a2103
+  m_Scenes: []

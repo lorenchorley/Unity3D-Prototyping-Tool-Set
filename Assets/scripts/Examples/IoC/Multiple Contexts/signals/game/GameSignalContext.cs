@@ -36,23 +36,23 @@ namespace strange.examples.multiplecontexts.signals.game {
         public GameSignalContext() {
         }
 
-        public GameSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public GameSignalContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, true) {
         }
 
         // Unbind the default EventCommandBinder and rebind the SignalCommandBinder
-        protected override void addCoreComponents() {
-            base.addCoreComponents();
-            injectionBinder.Unbind<ICommandBinder>();
-            injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
-        }
+        //protected override void addCoreComponents() {
+        //    base.addCoreComponents();
+        //    injectionBinder.Unbind<ICommandBinder>();
+        //    injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
+        //}
 
-        // Override Start so that we can fire the StartSignal 
-        override public IContext Start() {
-            base.Start();
-            GAME_START_SIGNAL startSignal = (GAME_START_SIGNAL) injectionBinder.GetInstance<GAME_START_SIGNAL>();
-            startSignal.Dispatch();
-            return this;
-        }
+        //// Override Start so that we can fire the StartSignal 
+        //override public IContext Start() {
+        //    base.Start();
+        //    GAME_START_SIGNAL startSignal = (GAME_START_SIGNAL) injectionBinder.GetInstance<GAME_START_SIGNAL>();
+        //    startSignal.Dispatch();
+        //    return this;
+        //}
 
         protected override void mapBindings() {
             injectionBinder.Bind<IScore>().To<ScoreModel>().ToSingleton();
@@ -61,7 +61,7 @@ namespace strange.examples.multiplecontexts.signals.game {
             mediationBinder.Bind<EnemySignalView>().To<EnemySignalMediator>();
             mediationBinder.Bind<ScoreboardSignalView>().To<ScoreboardSignalMediator>();
 
-            commandBinder.Bind<GAME_START_SIGNAL>().To<StartAppCommand>().To<StartGameCommand>().Once().InSequence();
+            commandBinder.Bind<ContextStartSignal>().To<StartAppCommand>().To<StartGameCommand>().Once().InSequence();
 
             commandBinder.Bind<ADD_TO_SCORE>().To<UpdateScoreCommand>();
             commandBinder.Bind<SHIP_DESTROYED>().To<ShipDestroyedCommand>();

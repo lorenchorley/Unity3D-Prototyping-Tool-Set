@@ -32,7 +32,7 @@ namespace strange.examples.multiplecontexts.events.main {
         public MainContext() : base() {
         }
 
-        public MainContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
+        public MainContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup, false) {
         }
 
         protected override void mapBindings() {

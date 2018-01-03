@@ -33,7 +33,7 @@ namespace strange.extensions.command.impl {
         override public void ResolveBinding(IBinding binding, object key) {
             base.ResolveBinding(binding, key);
 
-            if (bindings.ContainsKey(key)) //If this key already exists, don't bind this again
+            if (bindings.ContainsKey(key) && key is IBaseSignal) //If this key already exists, don't bind this again
             {
                 IBaseSignal signal = (IBaseSignal) key;
                 signal.AddListener(ReactTo); //Do normal bits, then assign the commandlistener to be reactTo
@@ -54,12 +54,15 @@ namespace strange.extensions.command.impl {
             if (depth != 0)
                 return base.invokeCommand(cmd, binding, data, depth);
 
-            IBaseSignal signal = (IBaseSignal) binding.key;
-            ICommand command = createSignalCommand(cmd, data, signal.GetTypes()); //Special signal-only command creation
-            command.sequenceId = depth;
-            trackCommand(command, binding);
-            executeCommand(command);
-            return command;
+            if (binding.key is IBaseSignal) {
+                IBaseSignal signal = (IBaseSignal) binding.key;
+                ICommand command = createSignalCommand(cmd, data, signal.GetTypes()); //Special signal-only command creation
+                command.sequenceId = depth;
+                trackCommand(command, binding);
+                executeCommand(command);
+                return command;
+            } else
+                return base.invokeCommand(cmd, binding, data, depth); // Not sure
         }
 
         protected ICommand createSignalCommand(object cmd, object data, List<Type> signalTypes) {
@@ -152,7 +155,7 @@ namespace strange.extensions.command.impl {
         /// </summary>
         /// <param name="key"> Instance of IBaseSignal</param>
         override public void Unbind(object key, object name) {
-            if (bindings.ContainsKey(key)) {
+            if (bindings.ContainsKey(key) && key is IBaseSignal) {
                 IBaseSignal signal = (IBaseSignal) key;
                 signal.RemoveListener(ReactTo);
             }

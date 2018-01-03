@@ -67,10 +67,13 @@ public class ContextDebuggingOptionsEditor : Editor {
             EditorGUILayout.Space();
             DisplayContextBindings(first as CrossContext);
 
-            foreach (ICrossContextCapable context in (first as ICrossContextCapable).Contexts) {
-                EditorGUILayout.Space();
-                EditorGUILayout.Space();
-                DisplayContextBindings(context);
+            var contexts = (first as ICrossContextCapable).Contexts;
+            if (contexts != null) {
+                foreach (ICrossContextCapable context in contexts) {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.Space();
+                    DisplayContextBindings(context);
+                }
             }
 
         }
