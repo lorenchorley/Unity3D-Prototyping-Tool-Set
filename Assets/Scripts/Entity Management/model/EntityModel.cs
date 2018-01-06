@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-namespace eventsourcing {
+namespace entitymanagement {
 
     public class EntityModel : IEntityModel {
         

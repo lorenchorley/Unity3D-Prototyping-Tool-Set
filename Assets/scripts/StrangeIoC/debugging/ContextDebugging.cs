@@ -18,7 +18,7 @@ public class ContextDebugging {
         string className = type.Name;
         className = FilterEndingsAndJoin(CamelCaseToArray(className));
 
-        Debug.Log(className.Colored(Colors.white) + " - " + DetermineCommandType(type.Name) + " Executed  \n\n" + type.Name + "\n");
+        Debug.Log(className.Colored(Colors.purple) + " - " + DetermineCommandType(type.Name) + " Executed  \n\n" + type.Name + "\n");
     }
 
     public static void OnSignalDispatch(BaseSignal s, int nonbaseListeners, params object[] parametersToStrings) {

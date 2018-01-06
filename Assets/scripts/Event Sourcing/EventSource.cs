@@ -6,6 +6,7 @@ using UniRx;
 using ZeroFormatter;
 using strange.extensions.command.api;
 using strange.extensions.command.impl;
+using entitymanagement;
 
 namespace eventsourcing {
 
@@ -112,10 +113,14 @@ namespace eventsourcing {
         private void _Do(IEvent e) {
             if (e is IActionableEvent) {
                 IBaseCommand doCommand = (e as IActionableEvent).NewDoCommand();
-                if (doCommand is IModifier) {
-                    IModifier m = (doCommand as IModifier);
+                if (doCommand is IEntityModifier) {
+                    IEntityModifier m = (doCommand as IEntityModifier);
                     Assert.IsTrue(m is IEventProducing);
-                    EM.Mod(m);
+                    EM.ApplyEntityMod(m);
+                } else if (doCommand is IIndependentModifier) {
+                    IIndependentModifier m = (doCommand as IIndependentModifier);
+                    Assert.IsTrue(m is IEventProducing);
+                    EM.ApplyMod(m);
                 } else if (doCommand is Command) {
                     throw new NotImplementedException();
                 } else
@@ -150,15 +155,20 @@ namespace eventsourcing {
 
             if (e is IActionableEvent) {
                 IBaseCommand undoCommand = (e as IActionableEvent).NewUndoCommand();
-                if (undoCommand is IModifier) {
-                    IModifier m = (undoCommand as IModifier);
+                if (undoCommand is IEntityModifier) {
+                    IEntityModifier m = (undoCommand as IEntityModifier);
                     Assert.IsTrue(m is IEventProducing);
                     (m as IEventProducing).DontRecordEvent = true;
-                    EM.Mod(m);
+                    EM.ApplyEntityMod(m);
+                } else if (undoCommand is IIndependentModifier) {
+                    IIndependentModifier m = (undoCommand as IIndependentModifier);
+                    Assert.IsTrue(m is IEventProducing);
+                    (m as IEventProducing).DontRecordEvent = true;
+                    EM.ApplyMod(m);
                 } else if (undoCommand is Command) {
                     throw new NotImplementedException();
                 } else
-                    throw new Exception();
+                    throw new Exception("Cannot apply undo command: " + undoCommand.GetType().Name);
             }
 
             return e;

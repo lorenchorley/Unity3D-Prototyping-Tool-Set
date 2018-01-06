@@ -29,8 +29,7 @@ namespace menusystem {
             return GetInstance(typeof(T));
         }
 
-        public virtual object GetInstance(Type key) {
-            object instance;
+        public virtual MenuView GetInstance(Type key) {
             IBinding binding = GetBinding(key, "Instance");
 
             if (binding == null) {
@@ -40,25 +39,27 @@ namespace menusystem {
                     throw new Exception("MenuBinder has no binding for:\n\tkey: " + key);
 
                 if (binding.value == null)
-                    throw new Exception("MenuBinder found null binding for :\n\tkey: " + key);
+                    throw new Exception("MenuBinder found null binding for:\n\tkey: " + key);
 
-                if (!(binding.value is GameObject))
-                    throw new Exception("MenuBinder found non-GameObject binding for :\n\tkey: " + key);
+                object[] aa = binding.value as object[];
 
-                GameObject go = GameObject.Instantiate(binding.value as GameObject, Vector3.zero, Quaternion.identity);
+                if (aa == null || aa.Length == 0 || !(aa[0] is GameObject))
+                    throw new Exception("MenuBinder found invalid binding for:\n\tkey: " + key);
+
+                GameObject go = GameObject.Instantiate(aa[0] as GameObject, Vector3.zero, Quaternion.identity);
                 go.name = (key as Type).Name;
                 go.transform.SetParent(Context.transform);
-                binding = Bind(key).To(go.AddComponent(key as Type)).ToName("Instance");
+
+                Component component = go.GetComponent(key as Type) ?? go.AddComponent(key as Type);
+                binding = Bind(key).To(component).ToName("Instance");
 
             }
 
-            if (binding.value == null)
-                throw new Exception("MenuBinder found null binding for :\n\tkey: " + key);
+            object[] bb = binding.value as object[];
+            if (bb == null || bb.Length == 0 || !(bb[0] is MenuView))
+                throw new Exception("MenuBinder found invalid binding for:\n\tkey: " + key);
 
-            instance = binding.value;
-            Assert.IsTrue(instance.GetType().IsSubclassOf(typeof(MenuView)));
-
-            return instance;
+            return bb[0] as MenuView;
         }
 
     }

@@ -49,8 +49,6 @@ namespace strange.extensions.context.impl {
             }
         }
 
-        protected bool UseSignals;
-
 #if UNITY_EDITOR
         public static ContextDebuggingOptions DebuggingOptions;
 #endif
@@ -61,16 +59,25 @@ namespace strange.extensions.context.impl {
         public Context() {
         }
 
-        public Context(object view, bool autoStartup, bool useSignals) {
-            UseSignals = useSignals; 
+        public Context(object view, bool autoStartup) {
 
             //If firstContext was unloaded, the contextView will be null. Assign the new context as firstContext.
             if (_firstContext == null || _firstContext.GetContextView() == null) {
                 _firstContext = this;
+
 #if UNITY_EDITOR
-                DebuggingOptions = Resources.Load<ContextDebuggingOptions>("Contexts/DebuggingOptions");
-                Assert.IsNotNull(DebuggingOptions);
+                DebuggingOptions = Resources.Load<ContextDebuggingOptions>("ContextDebuggingOptions");
+
+                if (DebuggingOptions == null) {
+
+                    // If not found, create
+                    DebuggingOptions = ScriptableObject.CreateInstance<ContextDebuggingOptions>();
+                    AssetDatabase.CreateAsset(DebuggingOptions, "Assets/Resources/ContextDebuggingOptions.asset");
+                    AssetDatabase.SaveAssets();
+
+                }
 #endif
+
             } else {
                 _firstContext.AddContext(this);
             }

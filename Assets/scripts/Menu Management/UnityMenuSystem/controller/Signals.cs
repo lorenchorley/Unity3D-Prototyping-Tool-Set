@@ -3,7 +3,7 @@ using System;
 
 namespace menusystem {
 
-    public class OnMenuReadySignal : Signal { }
+    public class MenuSystemReadySignal : Signal { }
     public class OpenMenuSignal : Signal { }
     public class CloseMenuSignal : Signal { }
     public class CloseTopMenuSignal : Signal { }

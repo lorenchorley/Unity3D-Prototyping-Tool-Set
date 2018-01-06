@@ -193,7 +193,7 @@ namespace strange.extensions.context.impl {
 
         public MVCSContext() { }
 
-        public MVCSContext(MonoBehaviour view, bool autoStartup, bool useSignals) : base(view, autoStartup, useSignals) {
+        public MVCSContext(MonoBehaviour view, bool autoStartup) : base(view, autoStartup) {
         }
 
         override public IContext SetContextView(object view) {
@@ -212,12 +212,7 @@ namespace strange.extensions.context.impl {
             injectionBinder.Bind<IInjectionBinder>().ToValue(injectionBinder);
             injectionBinder.Bind<IContext>().ToValue(this).ToName(ContextKeys.CONTEXT);
 
-            // Bind appropriate command binder
-            if (UseSignals) {
-                injectionBinder.Bind<ICommandBinder>().To<SignalCommandBinder>().ToSingleton();
-                //injectionBinder.Bind<ContextStartSignal>().ToSingleton(); // TODO fix problem with binding commands
-            } else
-                injectionBinder.Bind<ICommandBinder>().To<EventCommandBinder>().ToSingleton();
+            injectionBinder.Bind<ICommandBinder>().To<EventCommandBinder>().ToSingleton();
 
             //This binding is for local dispatchers
             injectionBinder.Bind<IEventDispatcher>().To<EventDispatcher>();
@@ -252,21 +247,6 @@ namespace strange.extensions.context.impl {
         /// Whatever Command/Sequence you want to happen first should 
         /// be mapped to this event.
         public override void Launch() {
-            if (UseSignals) {
-                ContextStartSignal startSignal = null;
-
-                try {
-                    startSignal = (ContextStartSignal) injectionBinder.GetInstance<ContextStartSignal>();
-                } catch { }
-
-                if (startSignal != null) {
-                    startSignal.Dispatch();
-                } else {
-                    commandBinder.ReactTo(typeof(ContextStartSignal));
-                }
-
-            }
-
             dispatcher.Dispatch(ContextEvent.START);
         }
 

@@ -102,7 +102,6 @@ namespace TouchScript.Devices.Display
                     nativeResolution = new Vector2(res.width, res.height);
                     break;
                 // Probably TVs
-                case RuntimePlatform.SamsungTVPlayer:
                 case RuntimePlatform.Switch:
                 case RuntimePlatform.WiiU:
                 case RuntimePlatform.XboxOne:
@@ -197,7 +196,6 @@ namespace TouchScript.Devices.Display
                     // We just hope that mobiles report their DPI correctly
                     break;
                 // Probably TVs
-                case RuntimePlatform.SamsungTVPlayer:
                 case RuntimePlatform.Switch:
                 case RuntimePlatform.WiiU:
                 case RuntimePlatform.XboxOne:

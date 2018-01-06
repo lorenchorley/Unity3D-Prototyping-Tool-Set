@@ -5,6 +5,7 @@
  * A fast game prototyping and production tool set for Unity3D
  * A set of frameworks and tools for fast game prototyping and production
  * A continuously updated project, as my needs change or as I find new tools that fit my needs
+ * A well organised project structure to use as a base to start any new game
  
 ## Why 
  * I found that I spend most of my time on a new project reinventing the same things over and over again, so:
@@ -103,8 +104,8 @@ Event sourcing framework
 ## Features
  * One no-configuration-necessary Unity component that manages all events
  * Easy network synchronisation (In progress)
- * Dead simple session replays (In progress)
- * Stupidly simple serialisation and reinstatement of game state (In progress)
+ * Dead simple session replays
+ * Stupidly simple serialisation and loading of game state (In progress)
  * Elementary do and undo (gameplay rollback) (In progress)
  
 ## Docs and references
@@ -136,8 +137,9 @@ Entity Management framework
  * Another is how to store events that occur in the game.
  
 ## Features
- * Centralised organisation of game entities with strict control mechanisms and information access via Commands and Queries that integrate well with the other frameworks (In progress)
- * Elementary prototyping serialisation and guidelines for fast foolproof production serialisation (In progress)
+ * Centralised organisation of game entities 
+ * Strict control mechanisms and information access via Commands and Queries 
+ * Integrates well with the other frameworks (In progress)
  
 ## Docs and references
 
@@ -146,6 +148,9 @@ Entity Management framework
  
 ## Development progress
  * In progress
+ 
+## Notes
+ * Need to check out https://github.com/sschmid/Entitas-CSharp
 
  
  
@@ -171,6 +176,7 @@ Serialisation and persistence framework
 
 ## Development progress
  * In progress
+ * Implementing Full Serializer as secondary development serialiser
 
  
  
@@ -201,20 +207,20 @@ Menu system
 ===========
 ## What
  * A well thought out, simple, versatile menu system
- * from ___
+ * Adapted from https://github.com/YousicianGit/UnityMenuSystem
  
 ## Why 
 
 ## Features
- * Integrated with StrangeIoC for maximum reusability (In progress)
- * One script and one prefab for each menu screen (In progress)
+ * Integrated with StrangeIoC for maximum reusability
+ * One script and one prefab for each menu screen
  
 ## Docs and references
 
 ## Drawbacks
+ * May not be as versatile as it could be out of the box
 
 ## Development progress
- * In progress
 
  
 
@@ -238,6 +244,9 @@ Input system
  
 ## Development progress
  * In progress
+ 
+## Notes
+ * Could replace with TouchScript, not quite the same thing though. Doesn't create a common interface between mouse and touch
 
  
  
@@ -262,6 +271,23 @@ The examples that come with the StrangeIoC framework
 A set of Rx examples including those that come with the UniRx implementation
  
  
+ 
+Links to other projects or pages that could be handy
+====================================================
+
+## Quality free assets: http://www.procedural-worlds.com/blog/best-free-unity-assets-categorised-mega-list/
+ 
+ 
+Other included projects
+========================
+ * Unity Toolbag - https://github.com/nickgravelyn/unitytoolbag 
+ * https://github.com/thefuntastic/Unity3d-Finite-State-Machine
+ * https://github.com/neuecc/LINQ-to-GameObject-for-Unity
+ * Autosaver - from the Asset Store (Updated slightly)
+ * https://github.com/bitcake/bitstrap
+ * https://bitbucket.org/UnityUIExtensions/unity-ui-extensions
+ * LeanTween - from the Asset Store
+ * ThreadNinja - from the Asset Store
  
  
  

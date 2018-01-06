@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using eventsourcing;
 
-namespace eventsourcing {
+namespace entitymanagement {
 
     public interface IESInjected {
 

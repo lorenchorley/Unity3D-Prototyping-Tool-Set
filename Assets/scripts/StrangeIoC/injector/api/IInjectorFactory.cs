@@ -33,6 +33,9 @@ namespace strange.extensions.injector.api {
         /// Request instantiation based on the provided binding and an array of Constructor arguments
         object Get(IInjectionBinding binding, object[] args);
 
+        /// Set an instantiation based on a binding, used specifically for moving signal binding to cross context
+        void ManualSet(IInjectionBinding binding, object value);
+
     }
 }
 

@@ -11,8 +11,8 @@ public class InputManager : MonoBehaviour { // Try out TouchScript as a replacem
     [SerializeField]
     private List<string> EnabledKeys;
     [SerializeField] private List<string> DisabledKeys;
-    [SerializeField] private bool TouchEnabled;
-    [SerializeField] private bool MouseEnabled;
+    public bool TouchEnabled;
+    public bool MouseEnabled;
 
     [Header("Options")]
     public float KeyRepeatDelay = 0; // TODO

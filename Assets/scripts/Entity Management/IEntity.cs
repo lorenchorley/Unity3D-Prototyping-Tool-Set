@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace eventsourcing {
+namespace entitymanagement {
 
     public interface IEntity {
 

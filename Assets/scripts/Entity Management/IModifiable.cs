@@ -1,9 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using eventsourcing;
 
-namespace eventsourcing {
+namespace entitymanagement {
 
-    public interface IModifiable<M> where M : IModifier {
+    public interface IModifiable<M> where M : IEntityModifier {
         IEvent ApplyMod(M m);
     }
 

@@ -65,7 +65,7 @@ public class CrossContext : Context, ICrossContextCapable {
 
     public CrossContext() { }
 
-    public CrossContext(object view, bool autoStartup, bool useSignals) : base(view, autoStartup, useSignals) {
+    public CrossContext(object view, bool autoStartup) : base(view, autoStartup) {
     }
 
     protected override void addCoreComponents() {

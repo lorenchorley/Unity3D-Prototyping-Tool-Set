@@ -37,13 +37,13 @@ public static class PersistenceTools { // TODO Test
 
     #region Load From File
     public static byte[] LoadFromDeviceData(this string path) {
-        return File.ReadAllBytes(path);
         throw new NotImplementedException();
-    }
+        //return File.ReadAllBytes(path);
+    } 
 
     public static T LoadFromDeviceData<T>(this string path) {
-        return Serialisation.To<T>(path.LoadUsingAsPath());
         throw new NotImplementedException();
+        //return Serialisation.To<T>(path.LoadUsingAsPath());
     }
 
     public static byte[] LoadUsingAsPath(this string path) {

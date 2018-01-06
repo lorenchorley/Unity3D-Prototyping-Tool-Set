@@ -57,4 +57,6 @@ MonoBehaviour:
   - ConfirmModExecuted
   - DoEntityDependentMod
   - DoIndependentMod
+  - ConfirmPingRequest
+  - ReceiveIndividualPingRequest
   DisableAutoOpenWizard: 1

@@ -33,6 +33,21 @@ namespace strange.extensions.injector.impl {
             objectMap = new Dictionary<IInjectionBinding, Dictionary<object, object>>();
         }
 
+        public void ManualSet(IInjectionBinding binding, object value) {
+            if (binding == null)
+                throw new InjectionException("InjectorFactory cannot act on null binding", InjectionExceptionType.NULL_BINDING);
+
+            Dictionary<object, object> dict = null;
+            if (!objectMap.TryGetValue(binding, out dict)) {
+                dict = new Dictionary<object, object>();
+                objectMap[binding] = dict;
+            } else if (dict.ContainsKey(value))
+                throw new InjectionException("InjectorFactory cannot manually override binding " + binding.name + " on " + binding.key + " with value " + value, InjectionExceptionType.NULL_BINDING);
+
+            dict[binding.name] = value;
+
+        }
+
         public object Get(IInjectionBinding binding, object[] args) {
 
             if (binding == null) {

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 
-namespace eventsourcing {
+namespace entitymanagement {
 
     public interface IEntityRegistry : ISerialisationAware {
         int EntityCount { get; }
         IEnumerable<int> UIDs { get; }
+        IEntity GetUncastEntityByKey(EntityKey key);
     }
 
     public interface IEntityRegistry<E> : IEntityRegistry where E : IEntity {

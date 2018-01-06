@@ -5,7 +5,7 @@ namespace menusystem {
 
     public interface IMenuModel {
 
-        OnMenuReadySignal OnMenuReadySignal { get; set; }
+        MenuSystemReadySignal OnMenuReadySignal { get; set; }
         OpenMenuSignal OpenMenuSignal { get; set; }
         CloseMenuSignal CloseMenuSignal { get; set; }
         CloseTopMenuSignal CloseTopMenuSignal { get; set; }
@@ -16,7 +16,9 @@ namespace menusystem {
         MenuView GetTopMenu();
         void CloseTopMenu();
         void OpenMenu(Type type);
+        void OpenMenu(Type type, Action<MenuView> menuReady);
         void OpenMenu<T>() where T : MenuView;
+        void OpenMenu<T>(Action<T> menuReady) where T : MenuView;
 
     }
 

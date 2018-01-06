@@ -5,6 +5,7 @@
 /// the View (listening to/controlling interface), Commands (business logic),
 /// Models (maintaining state) or Services (reaching out for data).
 using strange.extensions.mediation.impl;
+using strange.extensions.signal.impl;
 
 namespace menusystem {
 
@@ -14,6 +15,7 @@ namespace menusystem {
         protected abstract void UpdateListeners(bool value);
 
         public override void OnRegister() {
+            view.BackPressedSignal = new StrictSignal();
             view.Init();
             Init();
             UpdateListeners(true);

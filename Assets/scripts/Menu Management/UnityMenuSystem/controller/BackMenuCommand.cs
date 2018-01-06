@@ -1,4 +1,5 @@
 using strange.extensions.command.impl;
+using UnityEngine;
 
 namespace menusystem {
 
@@ -8,10 +9,10 @@ namespace menusystem {
 
         public override void Execute() {
             if (MenuModel.IsMenuOpen()) {
-                MenuModel.GetTopMenu().OnBackPressed();
+                MenuModel.CloseTopMenu();
             }
         }
-        
+
     }
 
 }

@@ -41,7 +41,7 @@ namespace menusystem {
             c.commandBinder.Bind<CloseTopMenuSignal>().To<CloseTopMenuCommand>();
             c.commandBinder.Bind<MenuBackSignal>().To<BackMenuCommand>();
 
-            c.injectionBinder.Bind<OnMenuReadySignal>().ToSingleton();
+            c.injectionBinder.Rebind<MenuSystemReadySignal>().ToSingleton();
 
         }
 

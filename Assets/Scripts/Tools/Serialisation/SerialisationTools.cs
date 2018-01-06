@@ -5,6 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
 using ZeroFormatter;
+using FullSerializer;
 
 public static class Serialisation {
 
@@ -59,11 +60,15 @@ public static class Serialisation {
     // Best serialisation for prototyping and development will be one command fits all, no extra customisation
     // Very slow, but (in readable format) and easy to serialise anything
 
-    private static SerialiseDelegate ToBinaryDevelopment = BinaryFormatterSerialise;
-    private static DeserialiseDelegate ToObjectDevelopment = BinaryFormatterDeserialise;
+    private static SerialiseDelegate ToBinaryDevelopment = FullSerialise;
+    private static DeserialiseDelegate ToObjectDevelopment = FullDeserialise;
+
+    private static fsSerializer fullSerialiser;
 
     public static void InitialiseDevelopmentSerialisation(bool tryOtherMethodOnDeserialisationFail = true) {
         mode = SerialisationMode.Development_Slow_Bulky_and_Human_Readable;
+
+        fullSerialiser = new fsSerializer();
 
         ToBinary = ToBinaryDevelopment;
 
@@ -118,13 +123,51 @@ public static class Serialisation {
         object o = JsonUtility.FromJson<object>(json);
         return AfterDeserialiseObject(o);
     }
+
+    private static byte[] FullSerialise(object obj) {
+        fsData data;
+        fsResult result = fullSerialiser.TrySerialize(obj, out data);
+
+        if (result.Failed)
+            throw new Exception("Serialisation failed on " + obj.GetType() + "\n\n" + result.FormattedMessages);
+
+        return Encoding.ASCII.GetBytes(fsJsonPrinter.CompressedJson(data));
+    }
+
+    private static object FullDeserialise(byte[] binary) {
+        object obj = null;
+        fsData data = fsJsonParser.Parse(Encoding.ASCII.GetString(binary));
+        fsResult result = fullSerialiser.TryDeserialize(data, ref obj);
+
+        if (result.Failed)
+            throw new Exception("Deserialisation failed\n\n" + result.FormattedMessages);
+
+        return obj;
+    }
     #endregion
 
     public delegate byte[] SerialiseDelegate(object obj);
     public delegate object DeserialiseDelegate(byte[] binary);
 
-    public static SerialiseDelegate ToBinary { get; private set; }
-    public static DeserialiseDelegate ToObject { get; private set; }
+    private static SerialiseDelegate toBinary = o => { throw new Exception("SerialisationTools not initialised"); };
+    public static SerialiseDelegate ToBinary {
+        get {
+            return toBinary;
+        }
+        private set {
+            toBinary = value;
+        }
+    }
+
+    private static DeserialiseDelegate toObject = o => { throw new Exception("SerialisationTools not initialised"); };
+    public static DeserialiseDelegate ToObject {
+        get {
+            return toObject;
+        }
+        private set {
+            toObject = value;
+        }
+    }
 
     public static byte[] From(object obj) {
         return ToBinary(obj);

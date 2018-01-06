@@ -1,10 +1,7 @@
 using strange.extensions.context.api;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace menusystem {
 
@@ -16,7 +13,7 @@ namespace menusystem {
 
         private Stack<MenuView> menuStack = new Stack<MenuView>();
 
-        [Inject] public OnMenuReadySignal OnMenuReadySignal { get; set; }
+        [Inject] public MenuSystemReadySignal OnMenuReadySignal { get; set; }
         [Inject] public OpenMenuSignal OpenMenuSignal { get; set; }
         [Inject] public CloseMenuSignal CloseMenuSignal { get; set; }
         [Inject] public CloseTopMenuSignal CloseTopMenuSignal { get; set; }
@@ -51,12 +48,15 @@ namespace menusystem {
 
         }
 
-        public void OpenMenu<T>() where T : MenuView {
-            OpenMenu(typeof(T));
+        public void OpenMenu<T>(Action<T> menuReady) where T : MenuView {
+            OpenMenu(typeof(T), t => menuReady((T) t));
         }
 
-        public void OpenMenu(Type type) {
-            MenuView instance = (MenuView) menuBinder.GetBinding(type);
+        public void OpenMenu(Type type, Action<MenuView> menuReady) {
+            MenuView instance = menuBinder.GetInstance(type);
+
+            if (instance == null)
+                throw new Exception("Menu prefab not registered: " + type.Name);
 
             // De-activate top menu
             if (menuStack.Count > 0) {
@@ -75,14 +75,26 @@ namespace menusystem {
             }
 
             menuStack.Push(instance);
+
+            if (menuReady != null)
+                menuReady.Invoke(instance); // TODO Make sure this is done after OnRegister
+        }
+
+        public void OpenMenu(Type type) {
+            OpenMenu(type, null);
+        }
+
+        public void OpenMenu<T>() where T : MenuView {
+            OpenMenu(typeof(T), null);
         }
 
         public void CloseTopMenu() {
             MenuView instance = menuStack.Pop();
 
-            if (instance.DestroyWhenClosed)
+            if (instance.DestroyWhenClosed) { 
                 GameObject.Destroy(instance.gameObject);
-            else
+                menuBinder.Unbind(instance.GetType(), "Instance");
+            }  else
                 instance.gameObject.SetActive(false);
 
             // Re-activate top menu

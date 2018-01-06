@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using strange.extensions.command.api;
 
-namespace eventsourcing {
+namespace entitymanagement {
 
     public interface IModifier : IBaseCommand {
 

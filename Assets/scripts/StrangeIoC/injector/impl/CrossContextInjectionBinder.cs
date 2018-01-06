@@ -1,6 +1,7 @@
 using strange.extensions.injector.impl;
 using strange.extensions.injector.api;
 using strange.framework.api;
+using UnityEngine;
 
 namespace strange.extensions.injector.impl {
     public class CrossContextInjectionBinder : InjectionBinder, ICrossContextInjectionBinder {
@@ -42,6 +43,18 @@ namespace strange.extensions.injector.impl {
                     } else {
                         Unbind(key); //remove this cross context binding from the local binder
                         CrossContextBinder.ResolveBinding(binding, key);
+
+                        //Need to bring over any values from the local injector factory
+                        // This is the local injector
+                        object value = injector.factory.Get(injectionBinding);
+
+                        if (value != null) {
+
+                            // Move bound value to cross context
+                            CrossContextBinder.injector.factory.ManualSet(injectionBinding, value);
+
+                        }
+
                     }
                 } else {
                     base.ResolveBinding(binding, key);
