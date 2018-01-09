@@ -2,25 +2,35 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using eventsourcing;
+using strange.extensions.context.api;
+using strange.extensions.context.impl;
+using strange.extensions.injector.api;
 
 namespace entitymanagement {
 
     public class EntityManager : MonoBehaviour {
 
+        private IInjectionBinder injectionBinder;
         private EventSource ES;
         private Dictionary<Type, IEntityRegistry> Registries;
-        public List<Func<IModifier, IModifier>> Filters;
-        public List<Action<IModifier, Action<IModifier>>> AsyncFilters;
+        public List<Action<IModifier, Action<IModifier>>> Filters;
 
         protected void Awake() {
+
+            ContextView contextView = GetComponentInParent<ContextView>();
+            IContext context = contextView?.context ?? Context.firstContext;
+            if (context != null && context is CrossContext) { 
+                injectionBinder = (contextView.context as CrossContext).injectionBinder;
+                injectionBinder.Bind<EntityManager>().ToValue(this).ToSingleton().CrossContext();
+            }
+             
             ES = GetComponent<EventSource>() ?? FindObjectOfType<EventSource>();
             if (ES == null)
                 throw new Exception("Unable to find active EventSource in scene");
 
             Reset();
 
-            Filters = new List<Func<IModifier, IModifier>>();
-            AsyncFilters = new List<Action<IModifier, Action<IModifier>>>();
+            Filters = new List<Action<IModifier, Action<IModifier>>>();
         }
 
         private void Reset() {
@@ -33,6 +43,14 @@ namespace entitymanagement {
 
         public void ExtractByteData(Action<byte[]> callback) {
             callback.Invoke(Serialisation.ToBinary(Registries));
+        }
+
+        public void RefreshEntityOnModifierUsingUID(IModifier m) {
+            if (m is IEntityModifier) {
+                IEntityModifier em = m as IEntityModifier;
+                IEntityRegistry r = GetRegistryByEntityType(em.IntendedEntityType);
+                em.e = r.GetUncastEntityByUID(em.e.UID);
+            }
         }
 
         public void Register<E>(IEntityRegistry<E> r) where E : IEntity {
@@ -48,22 +66,26 @@ namespace entitymanagement {
             return (R) Registries[typeof(R)];
         }
 
-        public void ApplyEntityMod<E, M>(int uid, M m) where M : IEntityModifier where E : IEntity, IModifiable<M> {
+        public IEntityRegistry GetRegistryByEntityType(Type type) {
+            return Registries[type];
+        }
+
+        public void ApplyMod<E, M>(int uid, M m) where M : IEntityModifier where E : IEntity, IModifiable<M> {
             IEntityRegistry<E> r = (IEntityRegistry<E>) Registries[typeof(E)];
             E e = r.GetEntityByUID(uid);
             m.e = e;
-            ApplyEntityMod<M>(m);
+            ApplyMod<M>(m);
         }
 
-        public void ApplyEntityMod<E, M>(int uid, IEntityRegistry<E> r, M m) where M : IEntityModifier where E : IEntity, IModifiable<M> {
+        public void ApplyMod<E, M>(int uid, IEntityRegistry<E> r, M m) where M : IEntityModifier where E : IEntity, IModifiable<M> {
             E e = r.GetEntityByUID(uid);
             m.e = e;
-            ApplyEntityMod<M>(m);
+            ApplyMod<M>(m);
         }
 
-        public void ApplyEntityMod<M>(IEntity e, M m) where M : IEntityModifier {
+        public void ApplyMod<M>(IEntity e, M m) where M : IEntityModifier {
             m.e = e;
-            ApplyEntityMod<M>(m);
+            ApplyMod<M>(m);
         }
 
         public void ApplyEntityMod<M>(EntityKey key, M m) where M : IEntityModifier {
@@ -72,30 +94,32 @@ namespace entitymanagement {
 
             m.e = (key.Registry as IEntityRegistry).GetUncastEntityByKey(key);
 
-            ApplyEntityMod<M>(m);
+            ApplyMod<M>(m);
         }
 
-        public void ApplyEntityModWhere<E, M>(M m, Predicate<EntityKey> pkey) where M : IEntityModifier where E : IEntity, IModifiable<M> {
+        public void ApplyModWhere<E, M>(M m, Predicate<EntityKey> pkey) where M : IEntityModifier where E : IEntity, IModifiable<M> {
             IEntityRegistry<E> r = (IEntityRegistry<E>) Registries[typeof(E)];
             foreach (E e in r.Entities) {
                 if (pkey.Invoke(e.Key))
-                    ApplyEntityMod(e, m);
+                    ApplyMod(e, m);
             }
         }
 
-        public void ApplyEntityModWhere<E, M>(M m, Predicate<E> pkey) where M : IEntityModifier where E : IEntity, IModifiable<M> {
+        public void ApplyModWhere<E, M>(M m, Predicate<E> pkey) where M : IEntityModifier where E : IEntity, IModifiable<M> {
             IEntityRegistry<E> r = (IEntityRegistry<E>) Registries[typeof(E)];
             foreach (E e in r.Entities) {
                 if (pkey.Invoke(e))
-                    ApplyEntityMod(e, m);
+                    ApplyMod(e, m);
             }
         }
         
-        public void ApplyMod<M>(M unfilteredMod) where M : IIndependentModifier {
-            if (unfilteredMod is IEntityModifier)
-                throw new Exception("Use ApplyEntityMod instead for classes that implement IEntityModifier: " + unfilteredMod.GetType().Name);
+        public void ApplyMod<M>(M unfilteredMod, Action<IModifier, Action<IModifier>> excludedAsyncFilter = null) where M : IModifier {
+            ApplyModFilters(unfilteredMod, excludedAsyncFilter, m => {
+                if (m == null) // If null, don't process
+                    return;
 
-            ApplyModFilters(unfilteredMod, m => {
+                if (m is IIoCInjected && injectionBinder != null)
+                    injectionBinder.injector.Inject(m);
 
                 if (m is IESInjected)
                     (m as IESInjected).ES = ES;
@@ -106,66 +130,41 @@ namespace entitymanagement {
                 m.Execute();
 
                 if (m is IEventProducing && !(m as IEventProducing).DontRecordEvent) {
-                    IEvent producedEvent = (m as IEventProducing).Event;
-                    ES.RegisterEvent(producedEvent);
+                    ES.RegisterEvent((m as IEventProducing).Event);
                 }
 
             });
         }
-
-        public void ApplyEntityMod<M>(M unfilteredMod) where M : IEntityModifier {
-            ApplyModFilters(unfilteredMod, m => {
-
-                if (m is IESInjected)
-                    (m as IESInjected).ES = ES;
-
-                if (m is IEMInjected)
-                    (m as IEMInjected).EM = this;
-
-                IEvent producedEvent = null;
-                Func<M, IEvent> function = GetEntityModFunction(m);
-
-                if (function == null) {
-                    m.Execute();
-
-                    if (m is IEventProducing && !(m as IEventProducing).DontRecordEvent) {
-                        producedEvent = (m as IEventProducing).Event;
-                        ES.RegisterEvent(producedEvent);
-                    }
-
-                } else {
-                    producedEvent = function.Invoke(m);
-                    ES.RegisterEvent(producedEvent);
-                }
-
-            });
-        }
-
-        private void ApplyModFilters<M>(M m, Action<M> callback) where M : IModifier {
-            for (int i = 0; i < Filters.Count; i++)
-                m = (M) Filters[i].Invoke(m);
-
+        
+        private void ApplyModFilters<M>(M m, Action<IModifier, Action<IModifier>> excludedAsyncFilter, Action<M> callback) where M : IModifier {
             Action<int, M> AsyncRun = null;
+
             AsyncRun = (i, n) => {
-                if (i < AsyncFilters.Count)
-                    AsyncFilters[i].Invoke(n, o => AsyncRun(i + 1, (M) o));
-                else
+                if (i < Filters.Count) {
+                    if (excludedAsyncFilter != Filters[i])
+                        Filters[i].Invoke(n, o => AsyncRun(i + 1, (M) o));
+                    else
+                        AsyncRun(i + 1, (M) n);
+                } else
                     callback.Invoke(n);
             };
+
             AsyncRun(0, m);
-
         }
 
-        private Func<M, IEvent> GetEntityModFunction<M>(M m) where M : IEntityModifier {
-            if (!(m.e is IModifiable<M>))
-                return null; // Default to the execute method
-                //throw new Exception(m.e.GetType().Name + " must extend IModifiable<" + typeof(M).Name + "> to be able to use " + m.GetType().Name + " on it.");
+        //private Func<M, IEvent> GetEntityModFunction<M>(M m) where M : IEntityModifier {
+        //    IModifiable<M> e = m.e as IModifiable<M>;
+        //    if (e == null)
+        //        return null; // Default to the execute method
+        //        //throw new Exception(m.e.GetType().Name + " must extend IModifiable<" + typeof(M).Name + "> to be able to use " + m.GetType().Name + " on it.");
 
-            if (m.e.GetType().IsValueType) // If the entity is a struct, get the up to date version from the registry first before passing its associated function
-                m.e = (m.e.Key.Registry as IEntityRegistry).GetUncastEntityByKey(m.e.Key);
+        //    // TODO Will not work with empty entity! gettype will return typeof(EmptyEntity), not the intended struct type
+        //    // Put bool in registry instead
+        //    if (e.GetType().IsValueType) // If the entity is a struct, get the up to date version from the registry first before passing its associated function
+        //        m.e = (m.e.Key.Registry as IEntityRegistry).GetUncastEntityByKey(m.e.Key);
 
-            return (m.e as IModifiable<M>).ApplyMod;
-        }
+        //    return e.ApplyMod;
+        //}
 
         public void Query<E, Q>(int uid, Q q) where Q : IQuery where E : IEntity, IQueriable<Q> {
             IEntityRegistry<E> r = (IEntityRegistry<E>) Registries[typeof(E)];

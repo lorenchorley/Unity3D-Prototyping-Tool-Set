@@ -8,7 +8,8 @@ namespace eventsourcing {
 
     public interface IEvent {
 
-        int GetHashCode();
+        long CreationTime { get; } // In ticks
+        int GenerateHashCode();
 
     }
 

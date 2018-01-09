@@ -6,6 +6,8 @@ using System.Text;
 using UnityEngine;
 using ZeroFormatter;
 using FullSerializer;
+using entitymanagement;
+using UnityEngine.Assertions;
 
 public static class Serialisation {
 
@@ -144,6 +146,67 @@ public static class Serialisation {
 
         return obj;
     }
+
+    public static void ToObjects<A>(byte[] serialisedArgs, out A a) {
+        Assert.IsNotNull(serialisedArgs);
+        object[] args = To<object[]>(serialisedArgs);
+        Assert.IsTrue(args != null && args.Length == 1);
+        a = (A) args[0];
+    }
+
+    public static void ToObjects<A, B>(byte[] serialisedArgs, out A a, out B b) {
+        Assert.IsNotNull(serialisedArgs);
+        object[] args = To<object[]>(serialisedArgs);
+        Assert.IsTrue(args != null && args.Length == 2);
+        a = (A) args[0];
+        b = (B) args[1];
+    }
+
+    public static void ToObjects<A, B, C>(byte[] serialisedArgs, out A a, out B b, out C c) {
+        Assert.IsNotNull(serialisedArgs);
+        object[] args = To<object[]>(serialisedArgs);
+        Assert.IsTrue(args != null && args.Length == 3);
+        a = (A) args[0];
+        b = (B) args[1];
+        c = (C) args[2];
+    }
+
+    public static void ToObjects<A, B, C, D>(byte[] serialisedArgs, out A a, out B b, out C c, out D d) {
+        Assert.IsNotNull(serialisedArgs);
+        object[] args = To<object[]>(serialisedArgs);
+        Assert.IsTrue(args != null && args.Length == 4);
+        a = (A) args[0];
+        b = (B) args[1];
+        c = (C) args[2];
+        d = (D) args[3];
+    }
+
+    public static void ToObjects<A>(object[] args, out A a) {
+        Assert.IsTrue(args != null && args.Length == 1);
+        a = To<A>((byte[]) args[0]);
+    }
+
+    public static void ToObjects<A, B>(object[] args, out A a, out B b) {
+        Assert.IsTrue(args != null && args.Length == 2);
+        a = To<A>((byte[]) args[0]);
+        b = To<B>((byte[]) args[1]);
+    }
+
+    public static void ToObjects<A, B, C>(object[] args, out A a, out B b, out C c) {
+        Assert.IsTrue(args != null && args.Length == 3);
+        a = To<A>((byte[]) args[0]);
+        b = To<B>((byte[]) args[1]);
+        c = To<C>((byte[]) args[2]);
+    }
+
+    public static void ToObjects<A, B, C, D>(object[] args, out A a, out B b, out C c, out D d) {
+        Assert.IsTrue(args != null && args.Length == 4);
+        a = To<A>((byte[]) args[0]);
+        b = To<B>((byte[]) args[1]);
+        c = To<C>((byte[]) args[2]);
+        d = To<D>((byte[]) args[3]);
+    }
+
     #endregion
 
     public delegate byte[] SerialiseDelegate(object obj);

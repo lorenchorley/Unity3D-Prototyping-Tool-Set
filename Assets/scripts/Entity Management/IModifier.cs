@@ -7,5 +7,7 @@ namespace entitymanagement {
 
     public interface IModifier : IBaseCommand {
 
+        long CreationTime { get; }
+
     }
 }

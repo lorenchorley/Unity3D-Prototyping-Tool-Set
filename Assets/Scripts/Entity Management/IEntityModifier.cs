@@ -7,6 +7,7 @@ namespace entitymanagement {
 
     public interface IEntityModifier : IModifier  {
         IEntity e { get; set; }
+        Type IntendedEntityType { get; }
     }
 
 }

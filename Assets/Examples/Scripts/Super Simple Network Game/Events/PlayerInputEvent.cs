@@ -13,12 +13,14 @@ namespace eventsourcing.examples.network {
         public Vector2 OldPosition;
         public Vector2 NewPosition;
 
+        public long CreationTime { get; set; }
+
         public override string ToString() {
             return "Moved player " + PlayerUID + " in direction " + Direction.ToString() + " from " + OldPosition + " to " + NewPosition;
         }
 
-        public override int GetHashCode() {
-            return ((OldPosition + NewPosition).GetHashCode() + PlayerUID + ((int) Direction)).GetHashCode();
+        public int GenerateHashCode() {
+            return ((OldPosition + NewPosition).GetHashCode() + PlayerUID + ((int) Direction) + CreationTime).GetHashCode();
         }
 
         public IBaseCommand NewDoCommand() {

@@ -7,6 +7,8 @@ using ZeroFormatter;
 using strange.extensions.command.api;
 using strange.extensions.command.impl;
 using entitymanagement;
+using strange.extensions.context.api;
+using strange.extensions.context.impl;
 
 namespace eventsourcing {
 
@@ -25,11 +27,19 @@ namespace eventsourcing {
         }
 
         protected void Start() {
+
+            ContextView contextView = GetComponentInParent<ContextView>();
+            IContext context = contextView?.context ?? Context.firstContext;
+            if (context != null && context is CrossContext) {
+                (contextView.context as CrossContext).injectionBinder.Bind<EventSource>().ToValue(this).ToSingleton().CrossContext();
+            }
+
             CheckForEM();
         }
 
         public void ResetWithByteData(byte[] data) {
             IEvent[] array = Serialisation.To<IEvent[]>(data);
+            Debug.Log("ResetWithByteData with " + array.Length + " events");
 
             Reset();
 
@@ -40,6 +50,7 @@ namespace eventsourcing {
         }
 
         public void ExtractByteData(Action<byte[]> callback) {
+            Debug.Log("ExtractByteData from " + allEvents.Count + " events");
             IEvent[] array = allEvents.ToArray();
             byte[] binary = Serialisation.ToBinary(array);
             callback.Invoke(binary);
@@ -56,6 +67,38 @@ namespace eventsourcing {
         private void Reset() {
             newEventObservable = new Subject<IEvent>();
             allEvents = new CustomStack<IEvent>();
+        }
+
+        public bool IsLastEventOfType<T>() where T : IEvent {
+            return allEvents.Peek() is T;
+        }
+
+        public T GetLastEventOfType<T>() where T : IEvent {
+            IEnumerator<IEvent> enumerator = allEvents.GetTopToBottomEnumerator();
+            enumerator.Reset();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current is T) {
+                    T t = (T) enumerator.Current;
+                    enumerator.Dispose();
+                    return t;
+                }
+            }
+            enumerator.Dispose();
+            return default(T);
+        }
+
+        public T GetFirstEventOfType<T>() where T : IEvent {
+            IEnumerator<IEvent> enumerator = allEvents.GetBottomToTopEnumerator();
+            enumerator.Reset();
+            while (enumerator.MoveNext()) {
+                if (enumerator.Current is T) {
+                    T t = (T) enumerator.Current;
+                    enumerator.Dispose();
+                    return t;
+                }
+            }
+            enumerator.Dispose();
+            return default(T);
         }
 
         public void RegisterEvent(IEvent e) {
@@ -116,7 +159,7 @@ namespace eventsourcing {
                 if (doCommand is IEntityModifier) {
                     IEntityModifier m = (doCommand as IEntityModifier);
                     Assert.IsTrue(m is IEventProducing);
-                    EM.ApplyEntityMod(m);
+                    EM.ApplyMod(m);
                 } else if (doCommand is IIndependentModifier) {
                     IIndependentModifier m = (doCommand as IIndependentModifier);
                     Assert.IsTrue(m is IEventProducing);
@@ -159,7 +202,7 @@ namespace eventsourcing {
                     IEntityModifier m = (undoCommand as IEntityModifier);
                     Assert.IsTrue(m is IEventProducing);
                     (m as IEventProducing).DontRecordEvent = true;
-                    EM.ApplyEntityMod(m);
+                    EM.ApplyMod(m);
                 } else if (undoCommand is IIndependentModifier) {
                     IIndependentModifier m = (undoCommand as IIndependentModifier);
                     Assert.IsTrue(m is IEventProducing);

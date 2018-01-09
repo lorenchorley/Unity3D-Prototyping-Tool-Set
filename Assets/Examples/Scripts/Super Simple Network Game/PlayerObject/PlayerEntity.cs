@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using entitymanagement;
+using FullSerializer;
 
 namespace eventsourcing.examples.network {
 
@@ -11,7 +12,9 @@ namespace eventsourcing.examples.network {
 
         public EntityKey Key { get; set; }
 
+        [fsIgnore]
         public PlayerComponent PlayerComponent;
+
         private Vector2 position;
 
         public PlayerEntity(int uid, EntityKey Key) {
@@ -38,31 +41,32 @@ namespace eventsourcing.examples.network {
             return e;
         }
 
-        public static IEvent ApplyMod(EntityManager EM, CreateLocalPlayerMod c) {
+        public static IEvent ApplyMod(EntityManager EM, CreatePlayerMod c) {
             NetworkGameMaster NetworkTester = GameObject.FindObjectOfType<NetworkGameMaster>();
-            if (NetworkTester.CurrentPlayer != null)
-                throw new Exception("Current player is already set");
-
+            PlayerEntity player;
             PlayerCreatedEvent e = new PlayerCreatedEvent();
 
             // Apply command
-            NetworkTester.CurrentPlayer = EM.GetRegistry<PlayerRegistry>().NewEntity();
-            NetworkTester.CurrentPlayer.PlayerComponent = GameObject.Instantiate(NetworkTester.PlayerTemplate.gameObject).GetComponent<PlayerComponent>();
-            NetworkTester.CurrentPlayer.PlayerComponent.UID = NetworkTester.CurrentPlayer.UID;
+            player = EM.GetRegistry<PlayerRegistry>().NewEntity();
+            player.PlayerComponent = GameObject.Instantiate(NetworkTester.PlayerTemplate.gameObject).GetComponent<PlayerComponent>();
+            player.PlayerComponent.UID = player.UID;
+            e.PlayerUID = player.uid;
+            e.PlayerPhotonID = c.PlayerPhotonID;
 
-            e.PlayerUID = NetworkTester.CurrentPlayer.uid;
+            if (NetworkTester.CurrentPlayer == null && PhotonNetwork.player.ID == c.PlayerPhotonID) {
+                NetworkTester.CurrentPlayer = player;
+            }
 
             return e;
         }
 
-        public static IEvent ApplyMod(EntityManager EM, DisablePlayerMod c) {
+        public IEvent ApplyMod(DisablePlayerMod c) {
             PlayerLeftEvent e = new PlayerLeftEvent();
 
             // Apply command
-            PlayerEntity player = EM.GetRegistry<PlayerRegistry>().NewEntity();
-            GameObject.Destroy(player.PlayerComponent);
+            GameObject.Destroy(PlayerComponent);
 
-            e.PlayerUID = player.uid;
+            e.PlayerUID = uid;
 
             return e;
         }

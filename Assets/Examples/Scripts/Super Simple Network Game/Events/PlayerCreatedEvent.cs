@@ -9,13 +9,16 @@ namespace eventsourcing.examples.network {
     public class PlayerCreatedEvent : IActionableEvent {
 
         public int PlayerUID;
+        public int PlayerPhotonID;
+
+        public long CreationTime { get; set; }
 
         public override string ToString() {
             return "Player created " + PlayerUID;
         }
 
-        public override int GetHashCode() {
-            return PlayerUID.GetHashCode();
+        public int GenerateHashCode() {
+            return (PlayerUID + CreationTime).GetHashCode();
         }
 
         public IBaseCommand NewDoCommand() {

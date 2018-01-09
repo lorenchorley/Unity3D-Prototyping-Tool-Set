@@ -58,13 +58,21 @@ public class CustomStack<T> : ICollection, IEnumerable<T> {
 
     public T Peek() {
         if (currentStackIndex < 0)
-            throw new InvalidOperationException("The stack is empty");
+            return default(T);
 
         return s[currentStackIndex];
     }
 
+    public IEnumerator<T> GetTopToBottomEnumerator() {
+        return new TopFirstEnumerator<T>(s, currentStackIndex);
+    }
+
+    public IEnumerator<T> GetBottomToTopEnumerator() {
+        return new BottomFirstEnumerator<T>(s, currentStackIndex);
+    }
+
     public IEnumerator<T> GetEnumerator() {
-        return new Enumerator<T>(s, currentStackIndex);
+        return new BottomFirstEnumerator<T>(s, currentStackIndex);
     }
 
     public void CopyTo(Array array, int index) {
@@ -72,7 +80,7 @@ public class CustomStack<T> : ICollection, IEnumerable<T> {
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
-        return new Enumerator<T>(s, currentStackIndex);
+        return new BottomFirstEnumerator<T>(s, currentStackIndex);
     }
 
     public T[] ToArray() {
@@ -83,13 +91,42 @@ public class CustomStack<T> : ICollection, IEnumerable<T> {
         return clone;
     }
 
-    class Enumerator<S> : IEnumerator<S> {
+    class TopFirstEnumerator<S> : IEnumerator<S> {
 
         private int topOfStack;
         private int currentStackIndex;
         private S[] s;
 
-        public Enumerator(S[] s, int topOfStack) {
+        public TopFirstEnumerator(S[] s, int topOfStack) {
+            this.topOfStack = topOfStack;
+            this.s = s;
+            Reset();
+        }
+
+        public S Current => s[currentStackIndex];
+
+        object IEnumerator.Current => s[currentStackIndex];
+
+        public void Dispose() {
+            s = null;
+        }
+
+        public bool MoveNext() {
+            return --currentStackIndex >= 0;
+        }
+
+        public void Reset() {
+            currentStackIndex = topOfStack + 1;
+        }
+    }
+
+    class BottomFirstEnumerator<S> : IEnumerator<S> {
+
+        private int topOfStack;
+        private int currentStackIndex;
+        private S[] s;
+
+        public BottomFirstEnumerator(S[] s, int topOfStack) {
             this.topOfStack = topOfStack;
             this.s = s;
             Reset();

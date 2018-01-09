@@ -20,18 +20,15 @@ namespace eventsourcing {
         }
         
         public bool Process(IEvent e) {
-            hashcode += e.GetHashCode();
+            hashcode += e.GenerateHashCode();
             return true;
         }
 
         public void OnFinish() {
             hashcode = hashcode.GetHashCode();
-
-            Debug.Log("Hash results: " + hashcode + " from " + ES.EventCount + " events");
-
         }
 
-        public override int GetHashCode() {
+        public int GenerateHashCode() {
             return hashcode;
         }
 

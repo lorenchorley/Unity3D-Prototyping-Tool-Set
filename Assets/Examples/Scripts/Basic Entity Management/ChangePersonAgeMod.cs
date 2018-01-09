@@ -5,9 +5,13 @@ namespace entitymanagement.examples.basic {
 
     [Serializable]
     public class ChangePersonAgeMod : IEntityModifier {
+
         public int NewAge;
 
         public IEntity e { get; set; }
+        public Type IntendedEntityType { get { return typeof(PersonEntity); } }
+
+        public long CreationTime { get; set; }
 
         public void Execute() {
             // Could be used if run independently of an entity

@@ -29,7 +29,7 @@ namespace entitymanagement.examples.basic {
 
             Debug.Log("Applying age change to 20");
             ChangePersonAgeMod c = new ChangePersonAgeMod { NewAge = 20 };
-            EM.ApplyEntityMod(personUID, r, c);
+            EM.ApplyMod(personUID, r, c);
 
             q = new PersonAgeQuery();
             EM.Query(personUID, r, q);
@@ -37,7 +37,7 @@ namespace entitymanagement.examples.basic {
 
             Debug.Log("Applying age change to 21");
             c = new ChangePersonAgeMod { NewAge = 21 };
-            EM.ApplyEntityMod(p, c);
+            EM.ApplyMod(p, c);
 
             q = new PersonAgeQuery();
             EM.Query(p, q);
@@ -57,11 +57,11 @@ namespace entitymanagement.examples.basic {
             
             Debug.Log("Applying age change to 23");
             c = new ChangePersonAgeMod { NewAge = 23 };
-            EM.ApplyEntityMod(p, c);
+            EM.ApplyMod(p, c);
 
             Debug.Log("Applying age change to 24");
             c = new ChangePersonAgeMod { NewAge = 24 };
-            EM.ApplyEntityMod(p, c);
+            EM.ApplyMod(p, c);
 
             Debug.Log("Undoing 2");
             ES.Undo(2);

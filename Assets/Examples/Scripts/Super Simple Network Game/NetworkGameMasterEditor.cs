@@ -44,7 +44,7 @@ namespace eventsourcing.examples.network {
             HashProjection proj = new HashProjection(p.ES);
             p.ES.ApplyProjection(proj, EventStream.AllExistingEvents);
 
-            Debug.Log(proj.GetHashCode());
+            Debug.Log(proj.GenerateHashCode());
 
         }
 

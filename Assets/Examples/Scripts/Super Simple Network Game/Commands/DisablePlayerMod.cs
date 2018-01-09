@@ -1,22 +1,24 @@
 using UnityEngine;
 using System;
 using entitymanagement;
+using FullSerializer;
 
 namespace eventsourcing.examples.network {
 
     [Serializable]
-    public class DisablePlayerMod : IEMInjected, IEventProducing {
+    public class DisablePlayerMod : IEntityModifier, IEventProducing {
 
         private IEvent _Event;
-        public IEvent Event { get { return _Event; } }
+        [fsIgnore] public IEvent Event => _Event;
+        [fsIgnore] public bool DontRecordEvent { get; set; }
 
-        private EntityManager _EM;
-        public EntityManager EM { set { _EM = value; } }
+        [fsIgnore] public IEntity e { get; set; }
+        [fsIgnore] public Type IntendedEntityType => typeof(PlayerEntity);
 
-        public bool DontRecordEvent { get; set; }
+        public long CreationTime { get; set; }
 
         public void Execute() {
-            _Event = PlayerEntity.ApplyMod(_EM, this);
+            _Event = (e as PlayerEntity).ApplyMod(this);
         }
 
     }

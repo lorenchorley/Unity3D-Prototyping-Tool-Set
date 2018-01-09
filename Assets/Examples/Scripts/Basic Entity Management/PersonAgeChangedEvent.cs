@@ -7,11 +7,14 @@ namespace entitymanagement.examples.basic {
 
     [Serializable]
     public class PersonAgeChangedEvent : IEvent {
+
         public int NewAge;
         public int OldAge;
 
-        public override int GetHashCode() {
-            return (OldAge + NewAge).GetHashCode();
+        public long CreationTime { get; set; }
+
+        public int GenerateHashCode() {
+            return (OldAge + NewAge + CreationTime).GetHashCode();
         }
 
         public IBaseCommand NewDoCommand() {

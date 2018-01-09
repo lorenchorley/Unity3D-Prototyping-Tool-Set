@@ -5,6 +5,7 @@ namespace entitymanagement {
     public interface IEntityRegistry : ISerialisationAware {
         int EntityCount { get; }
         IEnumerable<int> UIDs { get; }
+        IEntity GetUncastEntityByUID(int uid);
         IEntity GetUncastEntityByKey(EntityKey key);
     }
 

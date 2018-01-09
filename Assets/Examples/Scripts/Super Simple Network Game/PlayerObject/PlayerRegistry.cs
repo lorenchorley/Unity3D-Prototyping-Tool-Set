@@ -30,6 +30,10 @@ namespace eventsourcing.examples.network {
             }
         }
 
+        public IEntity GetUncastEntityByUID(int uid) {
+            return entities[entityIndexByUID[uid]];
+        }
+
         public PlayerEntity GetEntityByUID(int uid) {
             return entities[entityIndexByUID[uid]];
         }
@@ -64,9 +68,13 @@ namespace eventsourcing.examples.network {
         }
 
         public PlayerEntity NewEntity() {
-            PlayerEntity e = new PlayerEntity(newUID++, new EntityKey { Index = entities.Count });
+            EntityKey key = new EntityKey() {
+                Index = entities.Count,
+                Registry = this
+            };
+            PlayerEntity e = new PlayerEntity(newUID++, key);
 
-            entityIndexByUID[e.UID] = e.Key.Index;
+            entityIndexByUID[e.UID] = key.Index;
             uids.Add(e.UID);
             entities.Add(e);
 

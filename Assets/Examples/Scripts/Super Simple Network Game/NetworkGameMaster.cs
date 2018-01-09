@@ -6,9 +6,12 @@ using System;
 using UnityEngine.Assertions;
 using ZeroFormatter;
 using entitymanagement;
+using photon.helpers;
+using photon.essynchronisation;
 
 namespace eventsourcing.examples.network {
 
+    [RequireComponent(typeof(PhotonView))]
     public class NetworkGameMaster : MonoBehaviour {
 
         public static float movementIncrement = 0.1f;
@@ -66,57 +69,55 @@ namespace eventsourcing.examples.network {
 
         [Header("Photon")]
         public PhotonView View;
-        public PUNManager PUNManager;
-        public PUNCommandSyncer PUNCommandSyncer;
-        public PUNHasher PUNHasher;
-        public PUNPauser PUNPauser;
-        public PUNESRequester PUNESRequester;
+        public PUNConnecter PUNConnecter;
+        public PUNSynchroniser PUNESSynchroniser;
 
         [Header("Game State")]
-        public bool isPlaying;
         public PlayerEntity CurrentPlayer;
 
         void Start() {
             Serialisation.InitialiseDevelopmentSerialisation();
 
-            isPlaying = false;
+            View = GetComponent<PhotonView>();
+            ES = GetComponent<EventSource>() ?? FindObjectOfType<EventSource>() ?? gameObject.AddComponent<EventSource>();
+            EM = GetComponent<EntityManager>() ?? FindObjectOfType<EntityManager>() ?? gameObject.AddComponent<EntityManager>();
+            PUNConnecter = GetComponent<PUNConnecter>() ?? FindObjectOfType<PUNConnecter>() ?? gameObject.AddComponent<PUNConnecter>();
+            PUNESSynchroniser = GetComponent<PUNSynchroniser>() ?? FindObjectOfType<PUNSynchroniser>() ?? gameObject.AddComponent<PUNSynchroniser>();
 
-            View = GetComponent<PhotonView>() ?? gameObject.AddComponent<PhotonView>();
-            ES = GetComponent<EventSource>() ?? gameObject.AddComponent<EventSource>();
-            EM = GetComponent<EntityManager>() ?? gameObject.AddComponent<EntityManager>();
             PlayerRegister = new PlayerRegistry(EM, 5);
 
-            PUNManager = GetComponent<PUNManager>() ?? gameObject.AddComponent<PUNManager>();
-            PUNCommandSyncer = GetComponent<PUNCommandSyncer>() ?? gameObject.AddComponent<PUNCommandSyncer>();
-            PUNHasher = GetComponent<PUNHasher>() ?? gameObject.AddComponent<PUNHasher>();
-            PUNPauser = GetComponent<PUNPauser>() ?? gameObject.AddComponent<PUNPauser>();
-            PUNESRequester = GetComponent<PUNESRequester>() ?? gameObject.AddComponent<PUNESRequester>();
+            if (!PUNConnecter.ConnectOnStart)
+                PUNConnecter.StartPhoton();
 
-            PUNManager.StartPhoton(() => {
-                if (PhotonNetwork.otherPlayers.Length == 0) {
-                    EM.ApplyEntityMod(new CreateLocalPlayerMod());
-                    isPlaying = true;
-                } else
-                    SynchroniseWithOtherPlayers();
+            PUNConnecter.RegisterGuaranteedConnectedCallback(() => {
+                Assert.IsTrue(PhotonNetwork.inRoom);
+                PUNESSynchroniser.SetupAndSynchronise(OnSynchronisedAndReady);
             });
+
         }
 
         void Update() {
-            if (!isPlaying) {
-                Debug.Log("Is Paused");
+            if (PUNESSynchroniser.PUNPauser.IsPaused)
                 return;
-            }
 
-            bool inputDone = false;
             foreach (KeyCode key in MappedKeys()) {
                 if (Input.GetKeyDown(key)) {
                     DoInput(KeyToDirection(key));
-                    inputDone = true;
                 }
             }
 
-            if (inputDone) // This needs to be done once the event occurs!
-                CurrentPlayer.PlayerComponent.RefreshPosition();
+            bool eventsHaveBeenReceivedThisStep = !ES.IsLastEventOfType<IntervalStepEvent>();
+            if (eventsHaveBeenReceivedThisStep) { 
+                if (CurrentPlayer != null && CurrentPlayer.PlayerComponent != null)
+                    CurrentPlayer.PlayerComponent.RefreshPosition();
+            }
+
+        }
+
+        void OnSynchronisedAndReady() {
+
+            // Create local player and broadcast
+            EM.ApplyMod(new CreatePlayerMod() { PlayerPhotonID = PhotonNetwork.player.ID });
 
         }
 
@@ -124,39 +125,8 @@ namespace eventsourcing.examples.network {
             PhotonNetwork.Disconnect();
         }
 
-        public void SynchroniseWithOtherPlayers() {
-            Action PauseAll = null, RequestES = null, CheckHash = null, SetupLocally = null, UnpauseAll = null;
-
-            // Pause game for all players
-            PauseAll = () => PUNPauser.SetAllPlayersPaused(true, RequestES);
-
-            // Request ES data from one player
-            RequestES = () => PUNESRequester.RequestESAndImport(CheckHash);
-
-            // Do hashcode check on data for all players
-            CheckHash = () => PUNHasher.RequestHashCheck(SetupLocally);
-
-            // Create local player and broadcast
-            SetupLocally = () => {
-                Debug.Log("CreateLocalPlayer");
-
-                // Setup mod filter to intercept mods and distribute them before applying them to all instances at once
-                EM.AsyncFilters.Add((e, a) => PUNCommandSyncer.SendMod(e, () => a.Invoke(e)));
-
-                EM.ApplyEntityMod(new CreateLocalPlayerMod());
-
-                UnpauseAll.Invoke();
-            };
-
-            // Unpause game for all players
-            UnpauseAll = () => PUNPauser.SetAllPlayersPaused(false, () => { });
-
-            // Start
-            PauseAll.Invoke();
-        }
-
         public void DoInput(Direction direction) {
-            EM.ApplyEntityMod(CurrentPlayer, new DoPlayerInputMod() { direction = direction });
+            EM.ApplyMod(CurrentPlayer, new DoPlayerInputMod() { direction = direction });
         }
 
     }

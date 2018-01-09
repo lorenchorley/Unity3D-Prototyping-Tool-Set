@@ -44,7 +44,11 @@ namespace entitymanagement.examples.basic {
                 return entities.Count;
             }
         }
-        
+
+        public IEntity GetUncastEntityByUID(int uid) {
+            return entities[keyByUID[uid].Index];
+        }
+
         public PersonEntity GetEntityByUID(int uid) {
             return entities[keyByUID[uid].Index];
         }

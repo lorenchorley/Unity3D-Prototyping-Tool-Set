@@ -1,4 +1,4 @@
-﻿#if UNITY_WEBGL || UNITY_XBOXONE || WEBSOCKET
+#if UNITY_WEBGL || UNITY_XBOXONE || WEBSOCKET
 
 using System;
 using System.Text;

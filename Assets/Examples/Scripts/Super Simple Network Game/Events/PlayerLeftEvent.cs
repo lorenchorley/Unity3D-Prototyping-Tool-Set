@@ -10,12 +10,14 @@ namespace eventsourcing.examples.network {
 
         public int PlayerUID;
 
+        public long CreationTime { get; set; }
+
         public override string ToString() {
             return "Player left " + PlayerUID;
         }
 
-        public override int GetHashCode() {
-            return PlayerUID.GetHashCode();
+        public int GenerateHashCode() {
+            return (PlayerUID + CreationTime).GetHashCode();
         }
 
         public IBaseCommand NewDoCommand() {
